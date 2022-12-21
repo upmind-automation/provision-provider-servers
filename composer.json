@@ -1,0 +1,20 @@
+{
+    "name": "upmind/provision-provider-servers",
+    "description": "This provision category contains common functions used in provisioning flows for servers on various popular cloud platforms",
+    "type": "library",
+    "require": {
+        "upmind/provision-provider-base": "^3.5"
+    },
+    "license": "GPL-3.0",
+    "autoload": {
+        "psr-4": {
+            "Upmind\\ProvisionProviders\\Servers\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Harry Lewis",
+            "email": "harry@upmind.com"
+        }
+    ]
+}
