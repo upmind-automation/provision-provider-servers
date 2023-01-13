@@ -3,7 +3,8 @@
     "description": "This provision category contains common functions used in provisioning flows for servers on various popular cloud platforms",
     "type": "library",
     "require": {
-        "upmind/provision-provider-base": "^3.5"
+        "upmind/provision-provider-base": "^3.5",
+        "upmind/linode-api": "^1.2"
     },
     "license": "GPL-3.0",
     "autoload": {
