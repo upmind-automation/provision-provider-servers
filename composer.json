@@ -17,5 +17,12 @@
             "name": "Harry Lewis",
             "email": "harry@upmind.com"
         }
-    ]
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Upmind\\ProvisionProviders\\Servers\\LaravelServiceProvider"
+            ]
+        }
+    }
 }
