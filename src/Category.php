@@ -11,8 +11,8 @@ use Upmind\ProvisionProviders\Servers\Data\CreateParams;
 use Upmind\ProvisionProviders\Servers\Data\EmptyResult;
 use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
-use Upmind\ProvisionProviders\Servers\Data\ServerIdentifier;
-use Upmind\ProvisionProviders\Servers\Data\ServerInfo;
+use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
+use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
 
 abstract class Category extends BaseCategory
 {
@@ -24,21 +24,21 @@ abstract class Category extends BaseCategory
             ->setIcon('server');
     }
 
-    abstract public function create(CreateParams $params): ServerInfo;
+    abstract public function create(CreateParams $params): ServerInfoResult;
 
-    abstract public function getInfo(ServerIdentifier $params): ServerInfo;
+    abstract public function getInfo(ServerIdentifierParams $params): ServerInfoResult;
 
-    abstract public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfo;
+    abstract public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult;
 
-    abstract public function resize(ResizeParams $params): ServerInfo;
+    abstract public function resize(ResizeParams $params): ServerInfoResult;
 
-    abstract public function reinstall(ReinstallParams $params): ServerInfo;
+    abstract public function reinstall(ReinstallParams $params): ServerInfoResult;
 
-    abstract public function reboot(ServerIdentifier $params): ServerInfo;
+    abstract public function reboot(ServerIdentifierParams $params): ServerInfoResult;
 
-    abstract public function shutdown(ServerIdentifier $params): ServerInfo;
+    abstract public function shutdown(ServerIdentifierParams $params): ServerInfoResult;
 
-    abstract public function powerOn(ServerIdentifier $params): ServerInfo;
+    abstract public function powerOn(ServerIdentifierParams $params): ServerInfoResult;
 
-    abstract public function terminate(ServerIdentifier $params): EmptyResult;
+    abstract public function terminate(ServerIdentifierParams $params): EmptyResult;
 }

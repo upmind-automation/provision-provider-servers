@@ -10,7 +10,7 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
 /**
  * @property-read string $instance_id Server instance identifier
  */
-class ServerIdentifier extends DataSet
+class ServerIdentifierParams extends DataSet
 {
     public static function rules(): Rules
     {

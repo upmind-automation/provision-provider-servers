@@ -19,7 +19,7 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read string|null $created_at
  * @property-read string|null $updated_at
  */
-class ServerInfo extends ResultData
+class ServerInfoResult extends ResultData
 {
     public static function rules(): Rules
     {

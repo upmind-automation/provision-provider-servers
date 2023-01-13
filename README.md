@@ -40,15 +40,15 @@ The following providers are currently implemented:
 
 | Function | Parameters | Return Data | Description |
 |---|---|---|---|
-| create() | [_CreateParams_](src/Data/CreateParams.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Create and boot a new server |
-| getInfo() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Get information about a server such as its label, current state (running/rebooting etc), image (e.g., ubuntu), size and region |
-| changeRootPassword() | [_ChangeRootPasswordParams_](src/Data/ChangeRootPasswordParams.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Update the root password used to SSH into a server |
-| resize() | [_ResizeParams_](src/Data/ResizeParams.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Redeploy an existing server with a different resource allocation |
-| reinstall() | [_ReinstallParams_](src/Data/ReinstallParams.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Reinstall (wipe/reset) an existing server server using a particular image |
-| reboot() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Reboot (shutdown then power-on) a running server |
-| shutdown() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Shut down a running server |
-| powerOn() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Boot a powered-off server |
-| terminate() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Terminate (delete) an existing server |
+| create() | [_CreateParams_](src/Data/CreateParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Create and boot a new server |
+| getInfo() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Get information about a server such as its label, current state (running/rebooting etc), image (e.g., ubuntu), size and region |
+| changeRootPassword() | [_ChangeRootPasswordParams_](src/Data/ChangeRootPasswordParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Update the root password used to SSH into a server |
+| resize() | [_ResizeParams_](src/Data/ResizeParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Redeploy an existing server with a different resource allocation |
+| reinstall() | [_ReinstallParams_](src/Data/ReinstallParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Reinstall (wipe/reset) an existing server server using a particular image |
+| reboot() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Reboot (shutdown then power-on) a running server |
+| shutdown() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Shut down a running server |
+| powerOn() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Boot a powered-off server |
+| terminate() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_EmptyResult_](src/Data/EmptyResult.php) | Terminate (delete) an existing server |
 
 ## Changelog
 

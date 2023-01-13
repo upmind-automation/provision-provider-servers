@@ -27,8 +27,8 @@ use Upmind\ProvisionProviders\Servers\Data\CreateParams;
 use Upmind\ProvisionProviders\Servers\Data\EmptyResult;
 use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
-use Upmind\ProvisionProviders\Servers\Data\ServerIdentifier;
-use Upmind\ProvisionProviders\Servers\Data\ServerInfo;
+use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
+use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
 use Upmind\ProvisionProviders\Servers\Linode\Data\Configuration;
 
 class Provider extends Category implements ProviderInterface
@@ -56,7 +56,7 @@ class Provider extends Category implements ProviderInterface
         $this->configuration = $configuration;
     }
 
-    public function create(CreateParams $params): ServerInfo
+    public function create(CreateParams $params): ServerInfoResult
     {
         $image = $this->findImage($params->image);
         $type = $this->findType($params->size);
@@ -77,12 +77,12 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($server);
     }
 
-    public function getInfo(ServerIdentifier $params): ServerInfo
+    public function getInfo(ServerIdentifierParams $params): ServerInfoResult
     {
         return $this->getServerInfo($params->instance_id);
     }
 
-    public function reinstall(ReinstallParams $params): ServerInfo
+    public function reinstall(ReinstallParams $params): ServerInfoResult
     {
         $image = $this->findImage($params->image);
 
@@ -98,7 +98,7 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($params->instance_id)->setMessage('Server is rebuilding');
     }
 
-    public function resize(ResizeParams $params): ServerInfo
+    public function resize(ResizeParams $params): ServerInfoResult
     {
         $size = $this->findType($params->size);
 
@@ -117,7 +117,7 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($params->instance_id)->setMessage('Server is resizing');
     }
 
-    public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfo
+    public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
         $server = $this->findServer((int)$params->instance_id);
 
@@ -143,7 +143,7 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($params->instance_id)->setMessage('Root password changed');
     }
 
-    public function reboot(ServerIdentifier $params): ServerInfo
+    public function reboot(ServerIdentifierParams $params): ServerInfoResult
     {
         try {
             $this->api()->linodes()->reboot((int)$params->instance_id);
@@ -154,7 +154,7 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($params->instance_id)->setMessage('Server is rebooting');
     }
 
-    public function shutdown(ServerIdentifier $params): ServerInfo
+    public function shutdown(ServerIdentifierParams $params): ServerInfoResult
     {
         try {
             $this->api()->linodes()->shutdown((int)$params->instance_id);
@@ -165,7 +165,7 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($params->instance_id)->setMessage('Server is shutting down');
     }
 
-    public function powerOn(ServerIdentifier $params): ServerInfo
+    public function powerOn(ServerIdentifierParams $params): ServerInfoResult
     {
         try {
             $this->api()->linodes()->boot((int)$params->instance_id);
@@ -180,7 +180,7 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($params->instance_id)->setMessage($message ?? 'Server is booting');
     }
 
-    public function terminate(ServerIdentifier $params): EmptyResult
+    public function terminate(ServerIdentifierParams $params): EmptyResult
     {
         try {
             $this->api()->linodes()->delete((int)$params->instance_id);
@@ -194,11 +194,11 @@ class Provider extends Category implements ProviderInterface
     /**
      * @param int|Linode $server
      */
-    protected function getServerInfo($server): ServerInfo
+    protected function getServerInfo($server): ServerInfoResult
     {
         $server = $server instanceof Linode ? $server : $this->findServer((int)$server);
 
-        return ServerInfo::create()
+        return ServerInfoResult::create()
             ->setInstanceId((string)$server->id)
             ->setState($server->status)
             ->setLabel($server->label)
