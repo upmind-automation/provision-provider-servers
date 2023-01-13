@@ -9,15 +9,6 @@ This provision category contains the common functions used in provisioning flows
   - [Quick-start](#quick-start)
 - [Supported Providers](#supported-providers)
 - [Functions](#functions)
-  - [create()](#create)
-  - [getInfo()](#getInfo)
-  - [changeRootPassword()](#changeRootPassword)
-  - [resize()](#resize)
-  - [reinstall()](#reinstall)
-  - [reboot()](#reboot)
-  - [shutdown()](#shutdown)
-  - [powerOn()](#powerOn)
-  - [terminate()](#terminate)
 - [Changelog](#changelog)
 - [Contributing](#contributing)
 - [Credits](#credits)
@@ -47,41 +38,17 @@ The following providers are currently implemented:
 
 ## Functions
 
-### create()
-
-Creates and starts a server and returns the `instance_id` used to identify the server in subsequent functions.
-
-### getInfo()
-
-Gets information about a server such as its label, current state (running/rebooting etc), image (e.g., ubuntu), size and region.
-
-### changeRootPassword()
-
-Update the root password used to SSH into a server.
-
-### resize()
-
-Redeploy an existing server with a different resource allocation.
-
-### reinstall()
-
-Reinstall (wipe/reset) an existing server server using a particular image.
-
-### reboot()
-
-Reboot (shutdown then power-on) a running server.
-
-### shutdown()
-
-Shut down a running server.
-
-### powerOn()
-
-Boot a powered-off server.
-
-### terminate()
-
-Terminate (delete) an existing server.
+| Function | Parameters | Return Data | Description |
+|---|---|---|---|
+| create() | [_CreateParams_](src/Data/CreateParams.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Create and boot a new server |
+| getInfo() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Get information about a server such as its label, current state (running/rebooting etc), image (e.g., ubuntu), size and region |
+| changeRootPassword() | [_ChangeRootPasswordParams_](src/Data/ChangeRootPasswordParams.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Update the root password used to SSH into a server |
+| resize() | [_ResizeParams_](src/Data/ResizeParams.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Redeploy an existing server with a different resource allocation |
+| reinstall() | [_ReinstallParams_](src/Data/ReinstallParams.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Reinstall (wipe/reset) an existing server server using a particular image |
+| reboot() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Reboot (shutdown then power-on) a running server |
+| shutdown() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Shut down a running server |
+| powerOn() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Boot a powered-off server |
+| terminate() | [_ServerIdentifier_](src/Data/ServerIdentifier.php) | [_ServerInfo_](src/Data/ServerInfo.php) | Terminate (delete) an existing server |
 
 ## Changelog
 
@@ -102,4 +69,4 @@ GNU General Public License version 3 (GPLv3). Please see [License File](LICENSE.
 
 ## Upmind
 
-Sell, manage and support web hosting, domain names, ssl certificates, website builders and more with [Upmind.com](https://upmind.com/start) - the ultimate web hosting billing and management solution.
+Sell, manage and support web hosting, domain names, ssl certificates, website builders and more with [Upmind.com](https://upmind.com/start)
