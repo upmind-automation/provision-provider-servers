@@ -231,7 +231,7 @@ class Provider extends Category implements ProviderInterface
     protected function findImage(string $name): Image
     {
         try {
-            if (preg_match('#[a-z]/[a-z0-9\-\.]#', $name)) {
+            if (preg_match('#[a-z]+/[a-z0-9\-\.]+#', $name)) {
                 // name appears to be an image id
                 try {
                     return $this->api()->images()->find($name);
@@ -259,7 +259,7 @@ class Provider extends Category implements ProviderInterface
     protected function findType(string $name): LinodeType
     {
         try {
-            if (preg_match('/^[a-z0-9\-]$/', $name)) {
+            if (preg_match('/^[a-z0-9\-]+$/', $name)) {
                 // name appears to be a type id
                 try {
                     return $this->api()->linodeTypes()->find($name);
