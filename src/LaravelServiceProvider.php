@@ -6,7 +6,6 @@ namespace Upmind\ProvisionProviders\Servers;
 
 use Upmind\ProvisionBase\Laravel\ProvisionServiceProvider;
 use Upmind\ProvisionProviders\Servers\Category as ServersCategory;
-use Upmind\ProvisionProviders\Servers\Linode\Provider as LinodeProvider;
 
 class LaravelServiceProvider extends ProvisionServiceProvider
 {
@@ -15,6 +14,6 @@ class LaravelServiceProvider extends ProvisionServiceProvider
         $this->bindCategory('servers', ServersCategory::class);
 
         // $this->bindProvider('servers', 'example', Example\Provider::class);
-        $this->bindProvider('servers', 'linode', LinodeProvider::class);
+        $this->bindProvider('servers', 'linode', Linode\Provider::class);
     }
 }
