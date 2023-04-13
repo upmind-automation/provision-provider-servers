@@ -24,21 +24,49 @@ abstract class Category extends BaseCategory
             ->setIcon('server');
     }
 
+    /**
+     * Create and boot a new server.
+     */
     abstract public function create(CreateParams $params): ServerInfoResult;
 
+    /**
+     * Get information about a server such as its label, current state (running/rebooting etc),
+     * image (e.g., ubuntu), size and region)
+     */
     abstract public function getInfo(ServerIdentifierParams $params): ServerInfoResult;
 
+    /**
+     * Update the root password used to SSH into a server.
+     */
     abstract public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult;
 
+    /**
+     * Redeploy an existing server with a different resource allocation.
+     */
     abstract public function resize(ResizeParams $params): ServerInfoResult;
 
+    /**
+     * Reinstall (wipe/reset) an existing server server using a particular image.
+     */
     abstract public function reinstall(ReinstallParams $params): ServerInfoResult;
 
+    /**
+     * Reboot (shutdown then power-on) a running server.
+     */
     abstract public function reboot(ServerIdentifierParams $params): ServerInfoResult;
 
+    /**
+     * Shut down a running server.
+     */
     abstract public function shutdown(ServerIdentifierParams $params): ServerInfoResult;
 
+    /**
+     * Boot a powered-off server.
+     */
     abstract public function powerOn(ServerIdentifierParams $params): ServerInfoResult;
 
+    /**
+     * Terminate (delete) an existing server.
+     */
     abstract public function terminate(ServerIdentifierParams $params): EmptyResult;
 }
