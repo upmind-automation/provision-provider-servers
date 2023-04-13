@@ -14,6 +14,7 @@ class LaravelServiceProvider extends ProvisionServiceProvider
     {
         $this->bindCategory('servers', ServersCategory::class);
 
+        // $this->bindProvider('servers', 'example', Example\Provider::class);
         $this->bindProvider('servers', 'linode', LinodeProvider::class);
     }
 }
