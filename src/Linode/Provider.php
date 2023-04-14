@@ -69,6 +69,7 @@ class Provider extends Category implements ProviderInterface
                 'region' => $region->id,
                 'root_pass' => $params->root_password ?: Helper::generatePassword(),
                 'label' => $params->label,
+                'hypervisor' => $params->virtualization_type, // no longer supported?
             ]);
         } catch (Throwable $e) {
             throw $this->handleException($e, 'Create server');
@@ -207,6 +208,7 @@ class Provider extends Category implements ProviderInterface
             ->setIpAddress(Arr::first($server->ipv4))
             ->setHostname(null)
             ->setImage($server->image ?? 'unknown')
+            ->setVirtualizationType($server->hypervisor ?? 'unknown')
             ->setCreatedAt(Carbon::parse($server->created)->format('Y-m-d H:i:s'))
             ->setUpdatedAt(Carbon::parse($server->updated)->format('Y-m-d H:i:s'))
             ->setMessage(sprintf('Server is %s', str_replace('_', ' ', $server->status)))
