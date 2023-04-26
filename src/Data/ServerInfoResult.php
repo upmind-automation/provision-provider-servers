@@ -17,6 +17,7 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read string $size Server specs/size name
  * @property-read string $location Server/node dc/location/region
  * @property-read string|null $virtualization_type
+ * @property-read string|int|null $customer_identifier
  * @property-read string|null $created_at
  * @property-read string|null $updated_at
  */
@@ -34,6 +35,7 @@ class ServerInfoResult extends ResultData
             'size' => ['required', 'string'],
             'location' => ['required', 'string'],
             'virtualization_type' => ['nullable', 'string'],
+            'customer_identifier' => ['nullable'],
             'created_at' => ['date_format:Y-m-d H:i:s'],
             'updated_at' => ['date_format:Y-m-d H:i:s'],
         ]);
@@ -117,6 +119,17 @@ class ServerInfoResult extends ResultData
     public function setVirtualizationType(?string $type)
     {
         $this->setValue('virtualization_type', $type);
+        return $this;
+    }
+
+    /**
+     * @param string|int|null $customerIdentifier
+     *
+     * @return static $this
+     */
+    public function setCustomerIdentifier($customerIdentifier)
+    {
+        $this->setValue('customer_identifier', $customerIdentifier);
         return $this;
     }
 
