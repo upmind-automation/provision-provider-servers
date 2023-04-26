@@ -2,9 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
-## v1.1.0 - TBC
+## v2.0 - TBC
 
-- Add `virtualization_type` parameter to CreateParams and return value to ServerInfoResult
+- Add getSshConnectionCommand() function
+- Add `virtualization_type`, `customer_identifier`, `email` parameters to CreateParams and return values to ServerInfoResult
 - Loosen ServerInfoResult `hostname` return value validation to allow non-domain hostnames
 
 ## v1.0.2 - 2023-03-01
