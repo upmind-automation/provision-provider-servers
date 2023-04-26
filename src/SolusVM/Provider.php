@@ -39,7 +39,8 @@ class Provider extends Category implements ProviderInterface
     {
         return AboutData::create()
             ->setName('SolusVM v1')
-            ->setDescription('Deploy and manage SolusVM v1 virtual servers');
+            ->setDescription('Deploy and manage SolusVM v1 virtual servers')
+            ->setLogoUrl('https://api.upmind.io/images/logos/provision/solusvm-logo@2x.png');
     }
 
     /**
