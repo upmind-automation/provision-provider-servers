@@ -35,6 +35,7 @@ Alternatively you can start using it for your business immediately with [Upmind.
 
 The following providers are currently implemented:
   - [Linode](https://www.linode.com/docs/api/)
+  - [SolusVM v1](https://docs.solusvm.com/v1/api/API%2Boverview.html)
 
 ## Functions
 
