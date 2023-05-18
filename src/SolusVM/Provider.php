@@ -232,8 +232,8 @@ class Provider extends Category implements ProviderInterface
             ->setIpAddress($info['ipaddress'])
             ->setImage($templates[$info['template']] ?? $info['template'])
             ->setSize($plan['name'] ?? 'Custom')
-            ->setLocation($info['node'])
-            ->setVirtualizationType($info['type']);
+            ->setLocation($info['node'] ?? 'Unknown')
+            ->setVirtualizationType($info['type'] ?? 'Unknown');
     }
 
     /**
