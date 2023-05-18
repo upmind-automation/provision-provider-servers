@@ -2,11 +2,18 @@
 
 All notable changes to the package will be documented in this file.
 
+## v2.0.1 2023-05-18
+
+- Update SolusVM getServerInfoResult() fix undefined index errors for suspended
+  servers
+
 ## v2.0 - 2023-04-26
 
 - Add getSshConnectionCommand() function
-- Add `virtualization_type`, `customer_identifier`, `email` parameters to CreateParams and return values to ServerInfoResult
-- Loosen ServerInfoResult `hostname` return value validation to allow non-domain hostnames
+- Add `virtualization_type`, `customer_identifier`, `email` parameters to CreateParams
+  and return values to ServerInfoResult
+- Loosen ServerInfoResult `hostname` return value validation to allow non-domain
+  hostnames
 - Add SolusVM provider
 
 ## v1.0.2 - 2023-03-01
