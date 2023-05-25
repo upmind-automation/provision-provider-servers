@@ -15,8 +15,12 @@ use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
+use Upmind\ProvisionProviders\Servers\Data\SshConnectionCommandResult;
 use Upmind\ProvisionProviders\Servers\Example\Data\Configuration;
 
+/**
+ * Empty provider for demonstration purposes.
+ */
 class Provider extends Category implements ProviderInterface
 {
     protected Configuration $configuration;
@@ -34,6 +38,7 @@ class Provider extends Category implements ProviderInterface
     {
         return AboutData::create()
             ->setName('Example Provider')
+            // ->setLogoUrl('https://example.com/logo.png')
             ->setDescription('Empty provider for demonstration purposes');
     }
 
@@ -61,6 +66,14 @@ class Provider extends Category implements ProviderInterface
             ->setImage('Ubuntu 20.04')
             ->setSize('large')
             ->setLocation('London');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSshConnectionCommand(ServerIdentifierParams $params): SshConnectionCommandResult
+    {
+        throw $this->errorResult('Not implemented');
     }
 
     /**
