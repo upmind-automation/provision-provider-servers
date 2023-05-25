@@ -221,6 +221,13 @@ class Provider extends Category implements ProviderInterface
     {
         $info = $this->api()->getServerInfo($serverId);
         $templates = $this->api()->listTemplates($info['type']);
+        if (!empty($info['node'])) {
+            $node = $this->api()->getNode($info['node']);
+            $location = $node['country'];
+            if (!empty($node['city'])) {
+                $location = $node['city'] . ', ' . $location;
+            }
+        }
 
         $plan = $this->findPlanBySpecs($info['type'], $info['cpus'], $info['memory'], $info['hdd'], false);
 
@@ -232,7 +239,8 @@ class Provider extends Category implements ProviderInterface
             ->setIpAddress($info['ipaddress'])
             ->setImage($templates[$info['template']] ?? $info['template'])
             ->setSize($plan['name'] ?? 'Custom')
-            ->setLocation($info['node'] ?? 'Unknown')
+            ->setLocation($location ?? 'Unknown')
+            ->setNode($info['node'] ?? 'Unknown')
             ->setVirtualizationType($info['type'] ?? 'Unknown');
     }
 

@@ -170,6 +170,14 @@ class ApiClient
     }
 
     /**
+     * @param string|int $node Node id or name
+     */
+    public function getNode($node): array
+    {
+        return $this->apiCall('node-statistics', ['nodeid' => $node]);
+    }
+
+    /**
      * Get a map of all available templates as template => label.
      *
      * @param string|null $type Optionally, for a specific virtualization type

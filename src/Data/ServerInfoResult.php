@@ -15,7 +15,8 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read string $ip_address Server IP address
  * @property-read string $image Image name/identifier
  * @property-read string $size Server specs/size name
- * @property-read string $location Server/node dc/location/region
+ * @property-read string $location Server dc/location/region
+ * @property-read string|null $node Server host node name
  * @property-read string|null $virtualization_type
  * @property-read string|int|null $customer_identifier
  * @property-read string|null $created_at
@@ -34,6 +35,7 @@ class ServerInfoResult extends ResultData
             'image' => ['required', 'string'],
             'size' => ['required', 'string'],
             'location' => ['required', 'string'],
+            'node' => ['nullable', 'string'],
             'virtualization_type' => ['nullable', 'string'],
             'customer_identifier' => ['nullable'],
             'created_at' => ['date_format:Y-m-d H:i:s'],
@@ -110,6 +112,15 @@ class ServerInfoResult extends ResultData
     public function setLocation(string $location)
     {
         $this->setValue('location', $location);
+        return $this;
+    }
+
+    /**
+     * @return static $this
+     */
+    public function setNode(?string $node)
+    {
+        $this->setValue('node', $node);
         return $this;
     }
 
