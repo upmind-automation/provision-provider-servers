@@ -5,8 +5,10 @@ All notable changes to the package will be documented in this file.
 ## v2.1.0 - TBC
 
 - Add `node` to ServerInfoResult
+- Make `ip_address` nullable in ServerInfoResult
 - Update SolusVM ServerInfoResult, set `location` according to node location and
   set `node` as the node name
+- Implement Virtualizor provider
 
 ## v2.0.1 - 2023-05-18
 
