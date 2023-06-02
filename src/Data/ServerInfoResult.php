@@ -12,7 +12,7 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read string $state Server state e.g., ready/suspended/pending etc
  * @property-read string $label Server instance label/name
  * @property-read string|null $hostname Server hostname
- * @property-read string $ip_address Server IP address
+ * @property-read string|null $ip_address Server IP address
  * @property-read string $image Image name/identifier
  * @property-read string $size Server specs/size name
  * @property-read string $location Server dc/location/region
@@ -31,7 +31,7 @@ class ServerInfoResult extends ResultData
             'state' => ['required', 'string'],
             'label' => ['required', 'string'],
             'hostname' => ['nullable', 'alpha_dash_dot'],
-            'ip_address' => ['required', 'ip'],
+            'ip_address' => ['nullable', 'ip'],
             'image' => ['required', 'string'],
             'size' => ['required', 'string'],
             'location' => ['required', 'string'],
@@ -82,7 +82,7 @@ class ServerInfoResult extends ResultData
     /**
      * @return static $this
      */
-    public function setIpAddress(string $ipAddress)
+    public function setIpAddress(?string $ipAddress)
     {
         $this->setValue('ip_address', $ipAddress);
         return $this;
