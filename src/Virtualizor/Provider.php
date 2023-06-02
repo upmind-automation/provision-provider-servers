@@ -38,7 +38,7 @@ class Provider extends Category implements ProviderInterface
     {
         return AboutData::create()
             ->setName('Virtualizor')
-            ->setLogoUrl('https://www.virtualizor.com/sitepad-data/uploads/2022/01/virtualizor_logo.png')
+            ->setLogoUrl('https://api.upmind.io/images/logos/provision/virtualizor-logo.png')
             ->setDescription('Deploy and manage Virtualizor virtual servers using KVM,'
                 . ' Xen, OpenVZ, Proxmox, Virtuozzo, LXC and more');
     }
