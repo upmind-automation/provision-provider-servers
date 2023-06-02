@@ -16,5 +16,6 @@ class LaravelServiceProvider extends ProvisionServiceProvider
         // $this->bindProvider('servers', 'example', Example\Provider::class);
         $this->bindProvider('servers', 'linode', Linode\Provider::class);
         $this->bindProvider('servers', 'solusvm', SolusVM\Provider::class);
+        $this->bindProvider('servers', 'virtualizor', Virtualizor\Provider::class);
     }
 }
