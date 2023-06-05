@@ -223,9 +223,12 @@ class Provider extends Category implements ProviderInterface
         $templates = $this->api()->listTemplates($info['type']);
         if (!empty($info['node'])) {
             $node = $this->api()->getNode($info['node']);
-            $location = $node['country'];
-            if (!empty($node['city'])) {
-                $location = $node['city'] . ', ' . $location;
+
+            if ($node['country']) {
+                $location = $node['country'];
+                if (!empty($node['city'])) {
+                    $location = $node['city'] . ', ' . $location;
+                }
             }
         }
 
@@ -239,7 +242,7 @@ class Provider extends Category implements ProviderInterface
             ->setIpAddress($info['ipaddress'])
             ->setImage($templates[$info['template']] ?? $info['template'])
             ->setSize($plan['name'] ?? 'Custom')
-            ->setLocation($location ?: 'Unknown')
+            ->setLocation($location ?? 'Unknown')
             ->setNode($info['node'] ?? 'Unknown')
             ->setVirtualizationType($info['type'] ?? 'Unknown');
     }
