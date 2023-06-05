@@ -2,7 +2,7 @@
 
 All notable changes to the package will be documented in this file.
 
-## [v2.1.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.1.1) - 2023-06-05
+## [v2.1.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.1.2) - 2023-06-05
 
 - Fix empty location error in SolusVM getServerInfoResult()
 
