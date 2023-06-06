@@ -5,6 +5,7 @@ All notable changes to the package will be documented in this file.
 ## [v2.1.4](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.1.4) - 2023-06-07
 
 - Set SolusVM API client connect_timeout to 5 seconds
+- Set SolusVM API client timeout to 10 seconds
 
 ## [v2.1.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.1.3) - 2023-06-05
 
