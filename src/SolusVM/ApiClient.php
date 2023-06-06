@@ -33,6 +33,7 @@ class ApiClient
             ],
             'http_errors' => false,
             'verify' => false,
+            'connect_timeout' => 5,
         ]);
     }
 
