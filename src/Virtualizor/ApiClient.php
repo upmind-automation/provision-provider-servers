@@ -33,7 +33,7 @@ class ApiClient
             'http_errors' => false,
             'verify' => !($configuration->ignore_ssl_errors ?? true),
             'connect_timeout' => 10,
-            'timeout' => 30, // this API is SLOW!
+            'timeout' => 60, // this API is SLOW!
         ]);
     }
 
