@@ -156,7 +156,7 @@ class ApiClient
             'editvps' => 1,
         ]);
 
-        if (empty($data['done']['change_pass_msg'])) {
+        if (empty($data['done']['change_pass_msg']) && empty($data['done']['done'])) { // this is insane <:'(
             throw $this->throwError('Virtual server password change unsuccessful', [
                 'vpsid' => $vpsId,
                 'response_data' => $this->condenseResponseData($data),
@@ -497,6 +497,7 @@ class ApiClient
             'plans',
             'servers',
             'users',
+            'ips',
         ];
 
         foreach ($redact as $attribute) {
