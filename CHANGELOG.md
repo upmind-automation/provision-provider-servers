@@ -2,6 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v2.3.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.3.1) - 2023-06-09
+
+- Fix Virtualizor create() for location_type=geographic configurations
+
 ## [v2.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.3) - 2023-06-09
 
 - Increase Virtualizor API request timeout to 60
