@@ -64,7 +64,20 @@ class Provider extends Category implements ProviderInterface
             $osName = $params->image;
         }
 
-        if ($this->configuration->location_type === Configuration::LOCATION_TYPE_SERVER) {
+        if ($this->configuration->location_type === Configuration::LOCATION_TYPE_SERVER_GROUP) {
+            if (is_numeric($params->location)) {
+                $serverGroupId = $params->location;
+                $serverGroupName = null;
+            } else {
+                $serverGroupId = null;
+                $serverGroupName = $params->location;
+            }
+            $serverId = null;
+            $serverName = null;
+            $serverLocation = null;
+        } elseif ($this->configuration->location_type === Configuration::LOCATION_TYPE_SERVER) {
+            $serverGroupId = null;
+            $serverGroupName = null;
             if (is_numeric($params->location)) {
                 $serverId = $params->location;
                 $serverName = null;
@@ -74,6 +87,7 @@ class Provider extends Category implements ProviderInterface
             }
             $serverLocation = null;
         } else {
+            $serverGroupId = null;
             $serverId = null;
             $serverName = null;
             $serverLocation = $params->location;
@@ -85,13 +99,19 @@ class Provider extends Category implements ProviderInterface
 
         $plan = $this->api()->getPlan($planId, $planName, $virtualizationType);
         $template = $this->api()->getOsTemplate($osId, $osName);
-        $server = $this->api()->getServer($serverId, $serverName, $serverLocation);
+
+        if ($serverGroupId || $serverGroupName) {
+            $serverGroup = $this->api()->getServerGroup($serverGroupId, $serverGroupName);
+        } else {
+            $server = $this->api()->getServer($serverId, $serverName, $serverLocation);
+        }
 
         $data = $this->api()->createVirtualServer(
             $plan['virt'],
             $plan['plid'],
             $template['osid'],
-            $server['serid'],
+            $serverGroup['sgid'] ?? null,
+            $server['serid'] ?? null,
             $params->label,
             $params->email,
             $params->root_password

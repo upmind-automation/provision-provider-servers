@@ -41,7 +41,8 @@ class ApiClient
      * @param string $virtualizationType
      * @param int|string $planId
      * @param int|string $osId
-     * @param int|string $serverId
+     * @param int|string|null $serverGroupId
+     * @param int|string|null $serverId
      * @param string $hostname
      * @param string $email
      * @param string|null $password
@@ -50,6 +51,7 @@ class ApiClient
         string $virtualizationType,
         $planId,
         $osId,
+        $serverGroupId,
         $serverId,
         string $hostname,
         string $email,
@@ -59,7 +61,8 @@ class ApiClient
 
         $data = $this->apiCall('addvs', [], [
             'virt' => $virtualizationType,
-            'node_select' => 0,
+            'node_select' => 1,
+            'server_group' => $serverGroupId,
             'slave_server' => $serverId,
             'plid' => $planId,
             'osid' => $osId,
@@ -267,6 +270,50 @@ class ApiClient
                 'plid' => $planId,
                 'planname' => $planName,
                 'virt' => $virtualizationType,
+            ]);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|string|null $groupId
+     * @param string|null $groupName
+     */
+    public function getServerGroup(
+        $groupId,
+        ?string $groupName = null,
+        bool $orFail = true
+    ): ?array {
+        $query = ['page' => 1, 'reslen' => 100];
+        $post = [];
+
+        if ($groupName) {
+            $post['sg_name'] = $groupName;
+        }
+
+        if (is_numeric($groupId) || !empty($groupName)) {
+            do {
+                $data = $this->apiCall('servergroups', $query, $post);
+
+                foreach ($data['servergroups'] ?? [] as $group) {
+                    if (is_numeric($groupId)) {
+                        if ((string)$groupId === (string)$group['sgid']) {
+                            return $group;
+                        }
+                    } elseif ($groupName === $group['sg_name']) {
+                        return $group;
+                    }
+                }
+
+                $query['page']++;
+            } while (!empty($data['plans']));
+        }
+
+        if ($orFail) {
+            throw $this->throwError('Server group not found', [
+                'sgid' => $groupId,
+                'sg_name' => $groupName,
             ]);
         }
 

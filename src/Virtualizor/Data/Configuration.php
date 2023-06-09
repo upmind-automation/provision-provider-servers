@@ -22,10 +22,12 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
 class Configuration extends DataSet
 {
     public const LOCATION_TYPE_SERVER = 'server';
+    public const LOCATION_TYPE_SERVER_GROUP = 'server_group';
     public const LOCATION_TYPE_GEOGRAPHIC = 'geographic';
 
     public const LOCATION_TYPES = [
         self::LOCATION_TYPE_SERVER,
+        self::LOCATION_TYPE_SERVER_GROUP,
         self::LOCATION_TYPE_GEOGRAPHIC,
     ];
 
