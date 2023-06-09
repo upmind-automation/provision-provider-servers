@@ -2,6 +2,12 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v2.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.2) - 2023-06-09
+
+- Add `ignore_ssl_errors` boolean to Virtualizor configuration
+- Update Virtualizor ApiClient::changeVirtualServerRootPass() loosen response check
+- Tweak Virtualizor ApiClient connect + request timeouts and add error handling
+
 ## [v2.1.4](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.1.4) - 2023-06-07
 
 - Set SolusVM API client connect_timeout to 5 seconds
