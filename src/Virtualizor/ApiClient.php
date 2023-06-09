@@ -307,7 +307,7 @@ class ApiClient
                 }
 
                 $query['page']++;
-            } while (!empty($data['plans']));
+            } while (!empty($data['servergroups']));
         }
 
         if ($orFail) {
