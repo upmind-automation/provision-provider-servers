@@ -88,6 +88,7 @@ class Provider extends Category implements ProviderInterface
             $serverLocation = null;
         } else {
             $serverGroupId = null;
+            $serverGroupName = null;
             $serverId = null;
             $serverName = null;
             $serverLocation = $params->location;
