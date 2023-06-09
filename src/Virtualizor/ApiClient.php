@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Upmind\ProvisionProviders\Servers\Virtualizor;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Throwable;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
 use Upmind\ProvisionBase\Helper;
@@ -30,6 +32,8 @@ class ApiClient
             ],
             'http_errors' => false,
             'verify' => !($configuration->ignore_ssl_errors ?? true),
+            'connect_timeout' => 10,
+            'timeout' => 30, // this API is SLOW!
         ]);
     }
 
@@ -413,11 +417,19 @@ class ApiClient
             'apikey' => $this->getApiKeyHash(),
         ]);
 
-        $response = $this->client->post('index.php', [
-            RequestOptions::QUERY => $query,
-            RequestOptions::FORM_PARAMS => $post,
-            RequestOptions::TIMEOUT => 15,
-        ]);
+        try {
+            $response = $this->client->post('index.php', [
+                RequestOptions::QUERY => $query,
+                RequestOptions::FORM_PARAMS => $post,
+            ]);
+        } catch (ConnectException $e) {
+            $errorMessage = 'Provider API connection failed';
+            if (Str::contains($e->getMessage(), ['timeout', 'timed out'])) {
+                $errorMessage = 'Provider API request timeout';
+            }
+
+            throw $this->throwError($errorMessage, [], [], $e);
+        }
 
         $responseData = json_decode($response->getBody()->__toString(), true) ?? [];
 
