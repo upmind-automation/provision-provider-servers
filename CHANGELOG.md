@@ -2,6 +2,11 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v2.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.3) - 2023-06-09
+
+- Increase Virtualizor API request timeout to 60
+- Add Server Group location type to Virtualizor provision configurations
+
 ## [v2.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.2) - 2023-06-09
 
 - Add `ignore_ssl_errors` boolean to Virtualizor configuration
