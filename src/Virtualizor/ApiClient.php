@@ -24,12 +24,12 @@ class ApiClient
         $this->configuration = $configuration;
         $this->client = new Client([
             'handler' => $handler,
-            'base_uri' => sprintf('https://%s:%s/', $this->configuration->hostname, $this->configuration->port ?: 4085),
+            'base_uri' => sprintf('https://%s:%s/', $configuration->hostname, $configuration->port ?: 4085),
             'headers' => [
                 'Accept' => 'application/json',
             ],
             'http_errors' => false,
-            'verify' => false,
+            'verify' => !($configuration->ignore_ssl_errors ?? true),
         ]);
     }
 
