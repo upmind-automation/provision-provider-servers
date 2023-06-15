@@ -240,7 +240,7 @@ class Provider extends Category implements ProviderInterface
             ->setLabel($info['hostname'])
             ->setHostname($info['hostname'])
             ->setIpAddress($info['ipaddress'])
-            ->setImage($templates[$info['template']] ?? $info['template'])
+            ->setImage($templates[$info['template']] ?? $info['template'] ?? 'Unknown')
             ->setSize($plan['name'] ?? 'Custom')
             ->setLocation($location ?? 'Unknown')
             ->setNode($info['node'] ?? 'Unknown')

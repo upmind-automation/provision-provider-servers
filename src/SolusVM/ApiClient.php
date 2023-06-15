@@ -188,7 +188,11 @@ class ApiClient
      */
     public function listTemplates(?string $type = null): array
     {
-        $types = array_filter(Arr::wrap($type)) ?: Configuration::VIRTUALIZATION_TYPES;
+        if ($type && in_array($type, Configuration::VIRTUALIZATION_TYPES)) {
+            $types = Arr::wrap($type);
+        } else {
+            $types = Configuration::VIRTUALIZATION_TYPES;
+        }
 
         $promises = array_map(function (string $type): Promise {
             return $this->apiPromise('listtemplates', ['type' => $type, 'listpipefriendly' => 1]);
@@ -301,7 +305,7 @@ class ApiClient
      *
      * @return Promise<mixed[]>
      */
-    public function apiPromise(string $action, array $params): Promise
+    public function apiPromise(string $action, array $params = []): Promise
     {
         $params = array_merge($params, [
             'id' => $this->configuration->api_id,
