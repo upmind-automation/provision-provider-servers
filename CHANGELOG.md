@@ -2,6 +2,11 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v2.3.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.3.2) - 2023-06-15
+
+- Fix SolusVM ApiClient listTemplates() error for 'invalid' virtualization types
+  - E.g., VMs that return a virtualization type `"xenhvm"` but this endpoint expects `"xen hvm"`
+
 ## [v2.3.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.3.1) - 2023-06-09
 
 - Fix Virtualizor create() for location_type=geographic configurations
