@@ -194,11 +194,12 @@ class Provider extends Category implements ProviderInterface
             $osName = $params->image;
         }
 
-        $info = $this->getServerInfoResult($params->instance_id);
+        $allInfo = $this->api()->getAllVirtualServerInfo($params->instance_id); // this gives us everything, woo hoo!
+        $info = $this->allInfoToServerInfoResult($allInfo);
 
         $template = $this->api()->getOsTemplate($osId, $osName);
 
-        $data = $this->api()->rebuildVirtualServer($params->instance_id, $template['osid']);
+        $data = $this->api()->rebuildVirtualServer($params->instance_id, $template['osid'], $allInfo['vps']['serid']);
 
         return $info->setMessage($data['done_msg'] ?? 'Virtual server reinstalling')
             ->setImage($template['name'])
@@ -269,6 +270,14 @@ class Provider extends Category implements ProviderInterface
         // $state = $this->api()->getVirtualServerStatus($serverId); // this isn't returning `status` for some reason
         $allInfo = $this->api()->getAllVirtualServerInfo($serverId); // this gives us everything, woo hoo!
 
+        return $this->allInfoToServerInfoResult($allInfo);
+    }
+
+    /**
+     * @param array $allInfo Data returned from Virtualizor\ApiClient::getAllVirtualServerInfo()
+     */
+    protected function allInfoToServerInfoResult(array $allInfo): ServerInfoResult
+    {
         $vps = $allInfo['vps'];
         $plan = $allInfo['plans'][$vps['plid']] ?? $this->api()->getPlan($vps['plid'], null, null, false);
         $server = $allInfo['servers'][$vps['serid']] ?? $this->api()->getServer($vps['serid']);

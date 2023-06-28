@@ -402,13 +402,20 @@ class ApiClient
     /**
      * @param int|string $vpsId
      * @param int|string $osId
+     * @param int|string|null $serverId
      * @param null|string $password
      */
-    public function rebuildVirtualServer($vpsId, $osId, ?string $password = null): array
+    public function rebuildVirtualServer($vpsId, $osId, $serverId = null, ?string $password = null): array
     {
         $password ??= Helper::generateStrictPassword(16, true, true, true);
 
-        $data = $this->apiCall('rebuild', ['vpsid' => $vpsId], [
+        $query = [];
+
+        if ($serverId) {
+            $query['changeserid'] = $serverId;
+        }
+
+        $data = $this->apiCall('rebuild', $query, [
             'vpsid' => $vpsId,
             'osid' => $osId,
             'newos' => $osId,
@@ -416,6 +423,8 @@ class ApiClient
             'conf' => $password,
             'control_panel' => 0,
             'reos' => 1,
+            'format_primary' => 0,
+            'eu_send_rebuild_email' => 0,
         ]);
 
         if (empty($data['done'])) {
