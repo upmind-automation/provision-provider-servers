@@ -2,6 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v2.3.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.3.3) - 2023-06-28
+
+- Fix Virtualizor reinstall() for VPSes not hosted on the default server/node
+
 ## [v2.3.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.3.2) - 2023-06-15
 
 - Fix SolusVM ApiClient listTemplates() error for 'invalid' virtualization types
