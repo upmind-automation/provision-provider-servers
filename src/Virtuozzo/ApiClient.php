@@ -15,6 +15,7 @@ use SimpleXMLElement;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
 use Upmind\ProvisionBase\Helper;
 use Upmind\ProvisionProviders\Servers\Data\CreateParams;
+use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Data\Configuration;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Helper\SocketClient;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Helper\XMLCommand;
@@ -119,13 +120,13 @@ class ApiClient
 
         $login = new XMLCommand();
 
-        return $login->makeLoginBody($username, $pass);
+        return $login->makeLogin($username, $pass);
     }
 
     public function getServerInfo(string $serverId): ?array
     {
         $info = new XMLCommand();
-        $xml = $info->makeServerInfoBody($serverId);
+        $xml = $info->makeServerInfo($serverId);
 
         $response = $this->makeRequest($xml);
 
@@ -141,8 +142,10 @@ class ApiClient
             'label' => (string)$env->virtual_config->name ?? 'Unknown',
             'ip_address' => (string)$env->virtual_config->address->ip ?? '0.0.0.0',
             'image' => (string)$env->virtual_config->os_template->name ?? 'Unknown',
-            'size' => (string)$env->virtual_config->veid ?? 'Unknown',
-            'location' => 'Unknown',
+            'memory_mb' => (int)$env->virtual_config->video_memory_size ?? 0,
+            'cpu_cores' => (int)$env->virtual_config->cpu_count ?? 0,
+            'disk_mb' => (int)$env->virtual_config->memory_size ?? 0,
+            'location' => (string)$env->virtual_config->home_path ?? 'Unknown',
             'node' => (string)$env->virtual_config->hostname ?? 'Unknown',
             'virtualization_type' => $type ?? 'Unknown',
         ];
@@ -174,11 +177,13 @@ class ApiClient
             $create->setInterface($params->virtualization_type);
         }
 
-        $xml = $create->makeCreateServerBody(
+        $xml = $create->makeCreateServer(
             $params->label,
             $params->location,
             $params->image,
-            $params->size,
+            intval($params->memory_mb),
+            intval($params->cpu_cores),
+            intval($params->disk_mb),
         );
 
         $response = $this->makeRequest($xml);
@@ -190,7 +195,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeSetRootPasswordBody(
+        $xml = $create->makeSetRootPassword(
             $serverId,
             base64_encode($password)
         );
@@ -198,13 +203,15 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
-    public function resize(string $serverId, string $size): void
+    public function resize(string $serverId, ResizeParams $params): void
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeServerConfigBody(
+        $xml = $create->makeSetServerConfig(
             $serverId,
-            $size
+            intval($params->memory_mb),
+            intval($params->cpu_cores),
+            intval($params->disk_mb),
         );
 
         $this->makeRequest($xml);
@@ -214,7 +221,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeRestartServerBody($serverId);
+        $xml = $create->makeRestartServer($serverId);
 
         $this->makeRequest($xml);
     }
@@ -223,7 +230,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeStopServerBody($serverId);
+        $xml = $create->makeStopServer($serverId);
 
         $this->makeRequest($xml);
     }
@@ -232,7 +239,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeStartServerBody($serverId);
+        $xml = $create->makeStartServer($serverId);
 
         $this->makeRequest($xml);
     }
@@ -241,7 +248,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeDestroyServerBody($serverId);
+        $xml = $create->makeDestroyServer($serverId);
 
         $this->makeRequest($xml);
     }

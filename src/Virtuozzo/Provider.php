@@ -98,7 +98,11 @@ class Provider extends Category implements ProviderInterface
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
         try {
+            $this->api()->stop($params->instance_id);
+
             $this->api()->changePassword($params->instance_id, $params->root_password);
+
+            $this->api()->start($params->instance_id);
 
             return $this->getServerInfoResult($params->instance_id)->setMessage('Root password changed');
         } catch (Throwable $e) {
@@ -112,7 +116,7 @@ class Provider extends Category implements ProviderInterface
     public function resize(ResizeParams $params): ServerInfoResult
     {
         try {
-            $this->api()->resize($params->instance_id, $params->size);
+            $this->api()->resize($params->instance_id, $params);
 
             return $this->getServerInfoResult($params->instance_id)->setMessage('Server is resizing');
         } catch (Throwable $e) {
