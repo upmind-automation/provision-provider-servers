@@ -113,7 +113,6 @@ class ApiClient
             }
         }
 
-
         return [
             'instance_id' => (string)$vm['id'] ?? 'Unknown',
             'state' => $this->getState($vm),
@@ -170,6 +169,7 @@ class ApiClient
                 'cpus' => $params->cpu_cores,
                 'primary_disk_size' => ($params->disk_mb) / 1024,
                 'required_virtual_machine_build' => 1,
+                'location_id' => $params->location,
             ]
         ];
 

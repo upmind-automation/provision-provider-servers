@@ -15,6 +15,9 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read string|null $ip_address Server IP address
  * @property-read string $image Image name/identifier
  * @property-read string $size Server specs/size name
+ * @property-read integer $memory_mb Server video memory in megabytes
+ * @property-read integer $cpu_cores Server number of CPUs
+ * @property-read integer $disk_mb Server RAM size in megabytes
  * @property-read string $location Server dc/location/region
  * @property-read string|null $node Server host node name
  * @property-read string|null $virtualization_type
@@ -33,7 +36,10 @@ class ServerInfoResult extends ResultData
             'hostname' => ['nullable', 'alpha_dash_dot'],
             'ip_address' => ['nullable', 'ip'],
             'image' => ['required', 'string'],
-            'size' => ['required', 'string'],
+            'size' => ['required_without:memory_mb,cpu_cores,disk_mb', 'string'],
+            'memory_mb' => ['required_without:size', 'integer'],
+            'cpu_cores' => ['required_without:size', 'integer'],
+            'disk_mb' => ['required_without:size', 'integer'],
             'location' => ['required', 'string'],
             'node' => ['nullable', 'string'],
             'virtualization_type' => ['nullable', 'string'],
