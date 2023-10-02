@@ -13,19 +13,17 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
+use Upmind\ProvisionProviders\DomainNames\Helper\Utils;
 use Upmind\ProvisionBase\Helper;
 use Upmind\ProvisionProviders\Servers\Data\CreateParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Data\Configuration;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Helper\SocketClient;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Helper\XMLCommand;
-use Log;
 
 class ApiClient
 {
     protected Configuration $configuration;
-
-    protected bool $connected = false;
 
     protected SocketClient $client;
 
@@ -33,82 +31,26 @@ class ApiClient
     {
         $this->configuration = $configuration;
 
-        $this->client = new SocketClient($this->configuration->hostname, 4433, 10);
-
-        $this->connect();
-    }
-
-    public function __destruct()
-    {
-        if ($this->connected) {
-            $this->client->close();
-        }
-
-        $this->connected = false;
-    }
-
-    private function connect(): void
-    {
-        if (!$this->connected) {
-            $this->client->connect(
-                STREAM_CLIENT_CONNECT
-            );
-        }
-
-        $this->connected = true;
+        $this->client = new SocketClient($this->configuration->hostname, 4433);
     }
 
     private function makeRequest($xml): SimpleXMLElement
     {
+        $this->client->connect(STREAM_CLIENT_CONNECT, 50000);
+
         $login = $this->login();
 
         $resultXml = $this->client->request($login . "\0" . $xml);
 
+        $this->client->close();
+
         if ($resultXml == []) {
-            throw new RuntimeException('Empty provider api response');
+            throw ProvisionFunctionError::create('Empty provider api response');
         }
 
-        return $this->parseResponseData($resultXml[1]);
+        return $resultXml;
     }
 
-    /**
-     * @throws ProvisionFunctionError
-     */
-    private function parseResponseData(string $result): SimpleXMLElement
-    {
-        try {
-            $xml = new SimpleXMLElement($result);
-        } catch (\Exception $e) {
-            throw ProvisionFunctionError::create("Can't parse response", $e);
-        }
-
-        // Check the XML for errors
-        if ($error = $this->parseXmlError($xml->xpath('//ns1:message'))) {
-            throw ProvisionFunctionError::create($error)
-                ->withData([
-                    'response' => $xml,
-                ]);
-        }
-
-        return $xml;
-    }
-
-    private function parseXmlError(array $errors): ?string
-    {
-        $result = [];
-
-        foreach ($errors as $error) {
-            if (Str::contains($error, 'System errors')) {
-                $result[] = $error;
-            }
-        }
-
-        if ($result) {
-            return sprintf("Provider API Error: %s", implode(', ', $result));
-        }
-
-        return null;
-    }
 
     /**
      * @throws ProvisionFunctionError
@@ -120,13 +62,13 @@ class ApiClient
 
         $login = new XMLCommand();
 
-        return $login->makeLogin($username, $pass);
+        return $login->login($username, $pass);
     }
 
     public function getServerInfo(string $serverId): ?array
     {
         $info = new XMLCommand();
-        $xml = $info->makeServerInfo($serverId);
+        $xml = $info->serverInfo($serverId);
 
         $response = $this->makeRequest($xml);
 
@@ -136,21 +78,25 @@ class ApiClient
 
         $state = (string)$env->status->state ?? '0';
 
+        $diskSize = isset($env->virtual_config->device_list->device[0]->size) ? (int)$env->virtual_config->device_list->device[0]->size : 0;
+
         return [
             'instance_id' => (string)$env->eid ?? 'Unknown',
             'state' => $this->parseState($state),
-            'label' => (string)$env->virtual_config->name ?? 'Unknown',
-            'ip_address' => (string)$env->virtual_config->address->ip ?? '0.0.0.0',
-            'image' => (string)$env->virtual_config->os_template->name ?? 'Unknown',
-            'memory_mb' => (int)$env->virtual_config->video_memory_size ?? 0,
+            'label' => $env->virtual_config->name ? (string)($env->virtual_config->name) : 'Unknown',
+            'hostname' => $env->virtual_config->hostname != '' ? (string)$env->virtual_config->hostname : 'Unknown',
+            'ip_address' => $env->virtual_config->address->ip ? (string)$env->virtual_config->address->ip : null,
+            'image' => $env->virtual_config->os->name != '' ? (string)$env->virtual_config->os->name : 'Unknown',
+            'memory_mb' => (int)$env->virtual_config->memory_size ?? 0,
             'cpu_cores' => (int)$env->virtual_config->cpu_count ?? 0,
-            'disk_mb' => (int)$env->virtual_config->memory_size ?? 0,
+            'disk_mb' => $diskSize,
             'location' => (string)$env->virtual_config->home_path ?? 'Unknown',
-            'node' => (string)$env->virtual_config->hostname ?? 'Unknown',
-            'virtualization_type' => $type ?? 'Unknown',
+            'virtualization_type' => (string)$type ?? 'Unknown',
+            'updated_at' => $env->virtual_config->last_modified_date
+                ? Utils::formatDate((string)$env->virtual_config->last_modified_date)
+                : null,
         ];
     }
-
 
     private function parseState(string $state): string
     {
@@ -177,13 +123,16 @@ class ApiClient
             $create->setInterface($params->virtualization_type);
         }
 
-        $xml = $create->makeCreateServer(
+        $platform = $this->getGuestOSPlatform($params->image);
+
+        $xml = $create->createServer(
             $params->label,
             $params->location,
             $params->image,
+            $platform,
             intval($params->memory_mb),
             intval($params->cpu_cores),
-            intval($params->disk_mb),
+            intval($params->disk_mb)
         );
 
         $response = $this->makeRequest($xml);
@@ -195,7 +144,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeSetRootPassword(
+        $xml = $create->setRootPassword(
             $serverId,
             base64_encode($password)
         );
@@ -205,13 +154,29 @@ class ApiClient
 
     public function resize(string $serverId, ResizeParams $params): void
     {
-        $create = new XMLCommand();
+        $info = new XMLCommand();
+        $xml = $info->serverInfo($serverId);
 
-        $xml = $create->makeSetServerConfig(
+        $response = $this->makeRequest($xml);
+
+        $type = $response->origin;
+
+        $env = $response->data->{$type}->env;
+        $sysName = isset($env->virtual_config->device_list->device[0]->sys_name) ? (string)$env->virtual_config->device_list->device[0]->sys_name : null;
+
+        $serverConfig = new XMLCommand();
+
+        if (!$sysName) {
+            throw ProvisionFunctionError::create('Disk not found');
+        }
+
+        $xml = $serverConfig->setServerConfig(
             $serverId,
             intval($params->memory_mb),
             intval($params->cpu_cores),
+            $sysName,
             intval($params->disk_mb),
+            $env->virtual_config->address->ip ? (string)$env->virtual_config->address->ip : '0.0.0.0'
         );
 
         $this->makeRequest($xml);
@@ -221,7 +186,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeRestartServer($serverId);
+        $xml = $create->restartServer($serverId);
 
         $this->makeRequest($xml);
     }
@@ -230,7 +195,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeStopServer($serverId);
+        $xml = $create->stopServer($serverId);
 
         $this->makeRequest($xml);
     }
@@ -239,7 +204,7 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeStartServer($serverId);
+        $xml = $create->startServer($serverId);
 
         $this->makeRequest($xml);
     }
@@ -248,10 +213,46 @@ class ApiClient
     {
         $create = new XMLCommand();
 
-        $xml = $create->makeDestroyServer($serverId);
+        $xml = $create->destroyServer($serverId);
 
         $this->makeRequest($xml);
     }
-}
 
+    public function rebuildServer(string $serverId, string $image)
+    {
+        $platform = $this->getGuestOSPlatform($image);
+
+        $update = new XMLCommand();
+
+        $xml = $update->setServerImage(
+            $serverId,
+            $image,
+            $platform
+        );
+
+        $this->makeRequest($xml);
+    }
+
+    /**
+     * @return string
+     */
+    public function getGuestOSPlatform(string $image): string
+    {
+        $info = new XMLCommand();
+        $xml = $info->getVTSettings();
+
+        $response = $this->makeRequest($xml);
+
+        $type = $response->origin;
+        $settings = $response->data->{$type}->vt_settings;
+
+        foreach ($settings->vm_memory as $vm) {
+            if ((string)$vm->guest_os_name == $image) {
+                return (string)$vm->guest_os_platform;
+            }
+        }
+
+        throw ProvisionFunctionError::create('Image not found');
+    }
+}
 

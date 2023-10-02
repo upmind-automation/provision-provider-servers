@@ -11,7 +11,7 @@ class XMLCommand
 {
     public const XML_VERSION = '1.0';
 
-    public const XML_ENCODING = 'utf-8';
+    public const XML_ENCODING = 'UTF-8';
     protected string $apiVersion;
 
     protected DOMDocument $domDocument;
@@ -25,10 +25,12 @@ class XMLCommand
     protected array $rootElementAttrs = [
         'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
         'xmlns:ns2' => 'http://www.swsoft.com/webservices/vzl/4.0.0/types',
+        'xmlns:ns3' => 'http://www.swsoft.com/webservices/vzp/4.0.0/vzptypes',
+        'xmlns:ns4' => 'http://www.swsoft.com/webservices/vza/4.0.0/vzatypes'
     ];
 
     public function __construct(
-        string $version = '4.0.0',
+        string $version = '7.0.0',
         string $encoding = self::XML_ENCODING,
         string $interface = 'vzpenvm'
     )
@@ -148,7 +150,7 @@ class XMLCommand
      * @param DOMElement|array $body
      * @return DOMElement
      */
-    protected function makeCommandElements(string $command, $body): DOMElement
+    protected function setCommandElements(string $command, $body): DOMElement
     {
         try {
             $data = $this->createElement('data');
@@ -185,6 +187,62 @@ class XMLCommand
         }
     }
 
+    /**
+     * @param string $image
+     * @param string $platform
+     * @return DOMElement
+     */
+    public function createOSElement(string $image, string $platform): DOMElement
+    {
+        $template = $this->createElement('os');
+        $template->setAttribute('xsi:type', 'ns2:osType');
+
+        $template->appendChild($this->createElement('name', $image));
+        $template->appendChild($this->createElement('platform', $platform));
+
+        return $template;
+    }
+
+    /**
+     * @param int $diskSize
+     * @return DOMElement
+     */
+    public function createHardDiskDeviceElement(int $diskSize): DOMElement
+    {
+        $device = $this->createElement('device');
+        $device->setAttribute('xsi:type', 'ns3:vm_hard_disk_device');
+
+        $device->appendChild($this->createElement('boot_sequence_index', 0));
+        $device->appendChild($this->createElement('is_bootable'));
+        $device->appendChild($this->createElement('enabled', 1));
+        $device->appendChild($this->createElement('connected', 1));
+        $device->appendChild($this->createElement('emulation_type', 1));
+        $device->appendChild($this->createElement('disk_type', 1));
+        $device->appendChild($this->createElement('size', $diskSize));
+
+        return $device;
+    }
+
+    /**
+     * @return DOMElement
+     */
+    public function createNetworkDeviceElement(?string $ip = '0.0.0.0'): DOMElement
+    {
+        $device = $this->createElement('device');
+        $device->setAttribute('xsi:type', 'ns3:vm_network_device');
+
+        $device->appendChild($this->createElement('enabled', 1));
+        $device->appendChild($this->createElement('connected', 1));
+        $device->appendChild($this->createElement('emulation_type', 1));
+        $device->appendChild($this->createElement('default_gateway'));
+        $device->appendChild($this->createElement('virtual_network_id'));
+        $ipAddress = $this->createElement('ip_address');
+        $ipAddress->appendChild($this->createElement('ip', $ip));
+        $device->appendChild($ipAddress);
+
+        return $device;
+    }
+
     /*
         <?xml version="1.0" encoding="utf-8"?>
         <packet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -201,11 +259,11 @@ class XMLCommand
             </data>
         </packet>
      */
-    public function makeLogin(string $userName, string $password): string
+    public function login(string $userName, string $password): string
     {
         $this->setInterface('system');
 
-        $body = $this->makeCommandElements('login', [
+        $body = $this->setCommandElements('login', [
             $this->createElement('name', $userName),
             $this->createElement('realm', $this->realms['system']),
             $this->createElement('password', $password)
@@ -214,9 +272,8 @@ class XMLCommand
         $login = $body->getElementsByTagName('login')[0];
         $login->setAttribute('xsi:type', 'ns2:auth_nameType');
 
-        return $this->build($body,false);
+        return $this->build($body, false);
     }
-
 
     /*
        <?xml version="1.0" encoding="utf-8"?>
@@ -226,11 +283,11 @@ class XMLCommand
                <vzpenvm>
                    <create>
                         <name>1d59c6a2-bb4d-e34c-8fcc-2f8d74e12a97</name>
-                        <os_template>
-                            <name>redhat-as3-minimal</name>
-                        </os_template>
+                        <os>
+                            <name>Ubuntu Linux</name>
+                            <platform>Linux</platform>
+                        </os>
                         <memory_size>512</memory_size>
-                        <video_memory_size>3</video_memory_size>
                         <cpu_count>1</cpu_count>
                         <home_path>/var/parallels/MyVM.pvm/config.pvs</home_path>
                    </create>
@@ -238,25 +295,24 @@ class XMLCommand
            </data>
        </packet>
    */
-    public function makeCreateServer(
+    public function createServer(
         string $label,
         string $location,
         string $image,
-        int $videoMemorySize,
-        int $cpuCount,
-        int $memorySize
+        string $platform,
+        int    $memorySize,
+        int    $cpuCount,
+        int    $diskSize
     ): string
     {
-        if(is_numeric($image)) {
-            $template = $this->createElement('os_template', $image);
-        } else {
-            $template = $this->createElement('os_template');
-            $template->appendChild($this->createElement('name', $image));
-        }
+        $template = $this->createOSElement($image, $platform);
+
+        $deviceList = $this->createElement('device_list');
+        $deviceList->appendChild($this->createHardDiskDeviceElement($diskSize));
+        $deviceList->appendChild($this->createNetworkDeviceElement());
 
         $name = $this->createElement('name', $label);
         $size = $this->createElement('memory_size', $memorySize);
-        $videoSize = $this->createElement('video_memory_size', $videoMemorySize);
         $cpu = $this->createElement('cpu_count', $cpuCount);
         $homepath = $this->createElement('home_path', $location);
 
@@ -264,12 +320,12 @@ class XMLCommand
             $name,
             $template,
             $size,
-            $videoSize,
+            $deviceList,
             $cpu,
             $homepath,
         ]);
 
-        $body = $this->makeCommandElements('create', $config);
+        $body = $this->setCommandElements('create', $config);
 
         return $this->build($body);
     }
@@ -288,9 +344,9 @@ class XMLCommand
             </data>
         </packet>
     */
-    public function makeServerInfo(string $severId): string
+    public function serverInfo(string $severId): string
     {
-        $body = $this->makeCommandElements('get_info', [
+        $body = $this->setCommandElements('get_info', [
             $this->createElement('eid', $severId),
             $this->createConfigElement(),
         ]);
@@ -313,9 +369,9 @@ class XMLCommand
             </data>
         </packet>
     */
-    public function makeSetRootPassword(string $serverId, string $password): string
+    public function setRootPassword(string $serverId, string $password): string
     {
-        $body = $this->makeCommandElements('set_user_password', [
+        $body = $this->setCommandElements('set_user_password', [
             $this->createElement('eid', $serverId),
             $this->createElement('name', 'root'),
             $this->createElement('password', $password),
@@ -334,27 +390,46 @@ class XMLCommand
                         <eid>6dbd99dc-f212-45de-a5f4-ddb78a2b5280</eid>
                         <config>
                             <memory_size>512</memory_size>
-                            <video_memory_size>3</video_memory_size>
                             <cpu_count>1</cpu_count>
+                            <device_list>
+                                <device xsi:type="ns3:vm_hard_disk_device">
+                                    <size>10<size>
+                                </device>
+                            </device_list>
                         </config>
                     </set>
                 </vzpenvm>
             </data>
         </packet>
     */
-    public function makeSetServerConfig(
+    public function setServerConfig(
         string $serverId,
-        int $videoMemorySize,
-        int $cpuCount,
-        int $memorySize
+        int    $memorySize,
+        int    $cpuCount,
+        string $sysName,
+        int    $diskSize,
+        string $ip
     ): string
     {
-        $body = $this->makeCommandElements('set', [
+        $deviceList = $this->createElement('device_list');
+
+        $device = $this->createHardDiskDeviceElement($diskSize);
+        $networkDevice = $this->createNetworkDeviceElement($ip);
+
+        $device->appendChild($this->createElement('sys_name', $sysName));
+        $device->appendChild($this->createElement('recreate'));
+        $device->appendChild($this->createElement('is_boot_in_use'));
+        $device->appendChild($this->createElement('resize_fs'));
+
+        $deviceList->appendChild($device);
+        $deviceList->appendChild($networkDevice);
+        $body = $this->setCommandElements('set', [
             $this->createElement('eid', $serverId),
+
             $this->createConfigElement([
                 $this->createElement('memory_size', $memorySize),
-                 $this->createElement('video_memory_size', $videoMemorySize),
                 $this->createElement('cpu_count', $cpuCount),
+                $deviceList,
             ])
         ]);
 
@@ -374,9 +449,9 @@ class XMLCommand
             </data>
         </packet>
     */
-    public function makeRestartServer(string $serverId): string
+    public function restartServer(string $serverId): string
     {
-        $body = $this->makeCommandElements('restart',
+        $body = $this->setCommandElements('restart',
             $this->createElement('eid', $serverId),
         );
 
@@ -397,9 +472,9 @@ class XMLCommand
             </data>
         </packet>
     */
-    public function makeStopServer(string $serverId): string
+    public function stopServer(string $serverId): string
     {
-        $body = $this->makeCommandElements('stop', [
+        $body = $this->setCommandElements('stop', [
             $this->createElement('eid', $serverId),
             $this->createElement('force'),
         ]);
@@ -420,9 +495,9 @@ class XMLCommand
             </data>
         </packet>
     */
-    public function makeStartServer(string $serverId): string
+    public function startServer(string $serverId): string
     {
-        $body = $this->makeCommandElements('start',
+        $body = $this->setCommandElements('start',
             $this->createElement('eid', $serverId)
         );
 
@@ -442,11 +517,61 @@ class XMLCommand
             </data>
         </packet>
     */
-    public function makeDestroyServer(string $serverId): string
+    public function destroyServer(string $serverId): string
     {
-        $body = $this->makeCommandElements('destroy',
+        $body = $this->setCommandElements('destroy',
             $this->createElement('eid', $serverId)
         );
+
+        return $this->build($body);
+    }
+
+    /*
+        <?xml version="1.0" encoding="utf-8"?>
+        <packet version="4.0.0">
+            <target>vzpenvm</target>
+            <data>
+                <vzpenvm>
+                    <set>
+                        <eid>6dbd99dc-f212-45de-a5f4-ddb78a2b5280</eid>
+                        <config>
+                            <os xsi:type="ns2:osType">
+                                <name>Ubuntu Linux</name>
+                                <platform>Linux</platform>
+                            </os>
+                        </config>
+                    </set>
+                </vzpenvm>
+            </data>
+        </packet>
+    */
+    public function setServerImage(string $serverId, string $image, string $platform): string
+    {
+        $body = $this->setCommandElements('set', [
+            $this->createElement('eid', $serverId),
+            $this->createConfigElement([
+                $this->createOSElement($image, $platform)
+            ]),
+        ]);
+
+        return $this->build($body);
+    }
+
+    /*
+        <?xml version="1.0" encoding="utf-8"?>
+        <packet version="4.0.0">
+            <target>vzpenvm</target>
+            <data>
+                <vzpenvm>
+                    <get_vt_settings/>
+                </vzpenvm>
+            </data>
+        </packet>
+    */
+    public function getVTSettings(): string
+    {
+        $body = $this->setCommandElements('get_vt_settings', [
+        ]);
 
         return $this->build($body);
     }

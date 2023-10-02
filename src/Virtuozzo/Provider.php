@@ -49,6 +49,10 @@ class Provider extends Category implements ProviderInterface
     public function create(CreateParams $params): ServerInfoResult
     {
         try {
+            if (isset($params->size)) {
+                throw $this->errorResult('Size parameter not supported');
+            }
+
             $serverId = $this->api()->create($params);
 
             return $this->getServerInfoResult($serverId)->setMessage('Server created successfully!');
@@ -86,7 +90,7 @@ class Provider extends Category implements ProviderInterface
 
             return SshConnectionCommandResult::create()
                 ->setMessage('SSH command generated')
-                ->setCommand(sprintf('ssh root@%s', $info['ip_address']));
+                ->setCommand(sprintf('ssh root@%s', $info['ip_address'] ?? $info['hostname']));
         } catch (Throwable $e) {
             $this->handleException($e);
         }
@@ -97,6 +101,8 @@ class Provider extends Category implements ProviderInterface
      */
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
+        throw $this->errorResult('Operation not supported');
+
         try {
             $this->api()->stop($params->instance_id);
 
@@ -116,7 +122,23 @@ class Provider extends Category implements ProviderInterface
     public function resize(ResizeParams $params): ServerInfoResult
     {
         try {
+            if (isset($params->size)) {
+                throw $this->errorResult('Size parameter not supported');
+            }
+
+            $info = $this->getServerInfoResult($params->instance_id);
+
+            if ($info->state === 'running' && !$params->resize_running) {
+                throw $this->errorResult('Resize not available while server is running');
+            }
+
+            if ($info->state !== 'down') {
+                $this->api()->stop($params->instance_id);
+            }
+
             $this->api()->resize($params->instance_id, $params);
+
+            $this->api()->start($params->instance_id);
 
             return $this->getServerInfoResult($params->instance_id)->setMessage('Server is resizing');
         } catch (Throwable $e) {
@@ -129,7 +151,13 @@ class Provider extends Category implements ProviderInterface
      */
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        try {
+            $this->api()->rebuildServer($params->instance_id, $params->image);
+
+            return $this->getServerInfoResult($params->instance_id)->setMessage('Server rebuilding with fresh image/template');
+        } catch (Throwable $e) {
+            $this->handleException($e);
+        }
     }
 
     /**
