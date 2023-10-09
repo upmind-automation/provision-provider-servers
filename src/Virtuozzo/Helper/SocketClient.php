@@ -7,6 +7,7 @@ namespace Upmind\ProvisionProviders\Servers\Virtuozzo\Helper;
 use SimpleXMLElement;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
 use Illuminate\Support\Str;
+use Psr\Log\LoggerInterface;
 
 class SocketClient
 {
@@ -17,10 +18,35 @@ class SocketClient
 
     protected int $port;
 
-    public function __construct(string $host, int $port)
+    /** @var LoggerInterface */
+    protected $logger;
+
+    /** @var boolean $logging */
+    protected $logging;
+
+
+    public function __construct(string $host, int $port, bool $debug)
     {
         $this->host = $host;
         $this->port = $port;
+        $this->logging = $debug;
+    }
+
+    /**
+     * Set a PSR-3 logger.
+     */
+    public function setPsrLogger(?LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+
+    protected function writeLog(string $text, string $action)
+    {
+        if ($this->logging && isset($this->logger)) {
+            $message = $text;
+            $this->logger->debug(sprintf("Virtuozzo [%s]:\n %s", $action, trim($message)));
+        }
     }
 
     protected function makeAddress(): string
@@ -47,6 +73,8 @@ class SocketClient
         if (!is_resource($client) || $errorCode !== 0) {
             throw ProvisionFunctionError::create("Can't connect to socket: $errorCode, $errorMessage");
         }
+
+        $this->writeLog("Stream opened to " . $this->host . " port " . $this->port, "Connection made");
 
         $this->client = $client;
     }
@@ -77,14 +105,17 @@ class SocketClient
         return $this->checkResponseErrors($resultXml);
     }
 
-    public function checkResponseErrors(string $resultXml): SimpleXMLElement
+    public function checkResponseErrors(string $response): SimpleXMLElement
     {
         try {
-            $resultXml = $this->cleanUpNamespaces($resultXml);
+            $resultXml = $this->cleanUpNamespaces($response);
             $resultXml = new SimpleXMLElement($resultXml);
 
         } catch (\Exception $e) {
-            throw ProvisionFunctionError::create("Can't parse response", $e);
+            throw ProvisionFunctionError::create("Can't parse response", $e)
+                ->withData([
+                    'response' => $response,
+                ]);
         }
 
         $type = $resultXml->origin;
@@ -93,12 +124,15 @@ class SocketClient
         if ($env->error) {
             throw ProvisionFunctionError::create((string)$env->error->message)
                 ->withData([
-                    'response' => $resultXml,
+                    'response' => $response,
                 ]);
         }
 
         if (!$env->children()) {
-            throw ProvisionFunctionError::create('Empty provider api response');
+            throw ProvisionFunctionError::create('Empty provider api response')
+                ->withData([
+                    'response' => $response,
+                ]);
         }
 
         return $resultXml;
@@ -114,6 +148,8 @@ class SocketClient
             $result .= $row;
         } while ($row != "\0");
 
+        $this->writeLog($result, "READ");
+
         return $result;
     }
 
@@ -123,7 +159,10 @@ class SocketClient
         try {
             $xml = new SimpleXMLElement($response);
         } catch (\Exception $e) {
-            throw ProvisionFunctionError::create("Can't parse response", $e);
+            throw ProvisionFunctionError::create("Can't parse response", $e)
+                ->withData([
+                    'response' => $response,
+                ]);
         }
 
         if ($error = $this->parseXmlError($xml->xpath('//ns1:message'))) {
@@ -185,6 +224,8 @@ class SocketClient
      */
     public function write(string $content): int
     {
+        $this->writeLog($content, "WRITE");
+
         if (false === $written = fwrite($this->client, $content . "\0")) {
             throw ProvisionFunctionError::create("Error occurred on writing to the socket");
         }
@@ -201,7 +242,9 @@ class SocketClient
         if (!is_null($this->client)) {
             if (false === fclose($this->client)) {
                 throw ProvisionFunctionError::create("Can't close the socket");
-            };
+            }
+
+            $this->writeLog("Disconnected", "DISCONNECT");
         }
     }
 }

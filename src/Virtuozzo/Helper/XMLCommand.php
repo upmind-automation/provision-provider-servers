@@ -65,9 +65,9 @@ class XMLCommand
 
             $rootWrapper->appendChild($body);
 
-            return $this->toString();
+            return $this->toString(true);
         } catch (Exception $e) {
-            throw ProvisionFunctionError::create($e->getMessage());
+            throw ProvisionFunctionError::create('Build request failed', $e);
         }
     }
 
@@ -78,12 +78,12 @@ class XMLCommand
      */
     public function toString(bool $formatOutput = false): string
     {
-        $this->domDocument->formatOutput = $formatOutput;
+        $this->getDomDocument()->formatOutput = $formatOutput;
         if (false !== $command = $this->domDocument->saveXML()) {
             return $command;
         }
 
-        throw ProvisionFunctionError::create("Can't build XML command");
+        throw ProvisionFunctionError::create("Can't convert XML to string");
     }
 
     /**
@@ -126,7 +126,7 @@ class XMLCommand
                 !is_null($value) ? htmlentities($value, ENT_XML1) : null
             );
         } catch (Exception $e) {
-            throw ProvisionFunctionError::create("Can't build XML command");
+            throw ProvisionFunctionError::create("Can't build XML command", $e);
         }
     }
 
@@ -164,7 +164,7 @@ class XMLCommand
 
             return $data;
         } catch (Exception $e) {
-            throw ProvisionFunctionError::create("Can't build XML command");
+            throw ProvisionFunctionError::create("Can't build XML command", $e);
         }
     }
 
@@ -183,7 +183,7 @@ class XMLCommand
             return $config;
 
         } catch (Exception $e) {
-            throw ProvisionFunctionError::create("Can't build XML command");
+            throw ProvisionFunctionError::create("Can't build XML command", $e);
         }
     }
 

@@ -20,6 +20,7 @@ use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Data\Configuration;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Helper\SocketClient;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Helper\XMLCommand;
+use Psr\Log\LoggerInterface;
 
 class ApiClient
 {
@@ -27,11 +28,12 @@ class ApiClient
 
     protected SocketClient $client;
 
-    public function __construct(Configuration $configuration)
+    public function __construct(Configuration $configuration, ?LoggerInterface $logger)
     {
         $this->configuration = $configuration;
 
-        $this->client = new SocketClient($this->configuration->hostname, 4433);
+        $this->client = new SocketClient($this->configuration->hostname, 4433, boolval($this->configuration->debug));
+        $this->client->setPsrLogger($logger);
     }
 
     private function makeRequest($xml): SimpleXMLElement

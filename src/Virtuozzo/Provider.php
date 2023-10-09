@@ -233,7 +233,7 @@ class Provider extends Category implements ProviderInterface
 
     protected function api(): ApiClient
     {
-        return $this->apiClient ??= new ApiClient($this->configuration);
+        return $this->apiClient ??= new ApiClient($this->configuration, $this->getLogger());
     }
 
 
