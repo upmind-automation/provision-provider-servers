@@ -8,6 +8,7 @@ use SimpleXMLElement;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
 use Illuminate\Support\Str;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class SocketClient
 {
@@ -44,8 +45,29 @@ class SocketClient
     protected function writeLog(string $text, string $action)
     {
         if ($this->logging && isset($this->logger)) {
-            $message = $text;
-            $this->logger->debug(sprintf("Virtuozzo [%s]:\n %s", $action, trim($message)));
+            $this->logger->debug(sprintf("Virtuozzo [%s]:\n %s", $action, $this->formatLog($text)));
+        }
+    }
+
+    protected function formatLog(string $xml): string
+    {
+        $xml = trim($xml);
+
+        $messages = explode("\0", $xml);
+        if (count($messages) > 1) {
+            return implode("\0", array_map([$this, 'formatLog'], $messages));
+        }
+
+        try {
+            $dom = new \DOMDocument('1.0');
+            $dom->preserveWhiteSpace = false;
+            $dom->formatOutput = true;
+            $dom->loadXml($xml);
+
+            return $dom->saveXML() ?: $xml;
+        } catch (Throwable $e) {
+            // ignore error and return original xml
+            return $xml;
         }
     }
 
