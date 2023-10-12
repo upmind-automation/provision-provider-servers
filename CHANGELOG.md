@@ -2,6 +2,12 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v3.0.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.0) - 2023-10-12
+
+- Update CreateParams, ResizeParams and ServerInfoResult add `disk_mb`, `memory_mb`
+  + `cpu_cores` values as an alternative to `size`
+- Implement Virtuozzo provider
+
 ## [v2.3.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v2.3.3) - 2023-06-28
 
 - Fix Virtualizor reinstall() for VPSes not hosted on the default server/node
