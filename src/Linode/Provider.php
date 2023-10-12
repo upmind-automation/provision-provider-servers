@@ -353,7 +353,7 @@ class Provider extends Category implements ProviderInterface
             }
         }
 
-        throw $this->errorResult($message ?? sprintf('%s failed: Unknown error'), $data, $debug, $e);
+        throw $this->errorResult($message ?? sprintf('%s failed: Unknown error', $operation), $data, $debug, $e);
     }
 
     protected function api(): LinodeClient
