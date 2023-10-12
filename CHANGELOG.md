@@ -2,6 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v3.0.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.2) - 2023-10-12
+
+- Fix Linode error handling sprintf() error
+
 ## [v3.0.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.1) - 2023-10-12
 
 - Update Linode, SolusVM nd Virtualizor to require size parameter
