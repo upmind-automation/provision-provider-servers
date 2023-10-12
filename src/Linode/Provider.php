@@ -267,8 +267,12 @@ class Provider extends Category implements ProviderInterface
     /**
      * @throws ProvisionFunctionError
      */
-    protected function findType(string $name): LinodeType
+    protected function findType(?string $name): LinodeType
     {
+        if (empty($name)) {
+            throw $this->errorResult('Size parameter is required');
+        }
+
         try {
             if (preg_match('/^[a-z0-9\-]+$/', $name)) {
                 // name appears to be a type id

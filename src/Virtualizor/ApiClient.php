@@ -232,6 +232,10 @@ class ApiClient
         ?string $virtualizationType = null,
         bool $orFail = true
     ): ?array {
+        if (empty($planId) && empty($planName)) {
+            throw $this->throwError('Size parameter is required');
+        }
+
         $query = ['page' => 1, 'reslen' => 100];
         $post = [];
 

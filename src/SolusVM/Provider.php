@@ -256,8 +256,12 @@ class Provider extends Category implements ProviderInterface
      *
      * @return mixed[]|null Plan data
      */
-    protected function findPlan(string $virtualizationType, string $plan, bool $orFail = true): ?array
+    protected function findPlan(string $virtualizationType, ?string $plan, bool $orFail = true): ?array
     {
+        if (empty($plan)) {
+            throw $this->errorResult('Size parameter is required');
+        }
+
         $plans = $this->cache['plans'][$virtualizationType] ??= $this->api()->listPlans($virtualizationType);
 
         // First try to find by id, then by name
