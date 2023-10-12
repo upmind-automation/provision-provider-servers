@@ -2,6 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v3.0.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.1) - 2023-10-12
+
+- Update Linode, SolusVM nd Virtualizor to require size parameter
+
 ## [v3.0.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.0) - 2023-10-12
 
 - Update CreateParams, ResizeParams and ServerInfoResult add `disk_mb`, `memory_mb` + `cpu_cores` values as an alternative to `size`
