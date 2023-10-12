@@ -142,6 +142,22 @@ class ApiClient
         return (string)$response->data->vzpenvm->env->eid;
     }
 
+    public function installGuestTools(string $serverId): void
+    {
+        $create = new XMLCommand();
+        $xml = $create->installGuestTools($serverId);
+        $this->makeRequest($xml);
+    }
+
+    public function getConsoleInfo(string $serverId): array
+    {
+        $create = new XMLCommand();
+        $xml = $create->getConsoleInfo($serverId);
+        $response = $this->makeRequest($xml);
+
+        return json_decode(json_encode($response->data->vzpenvm->console_info), true);
+    }
+
     public function changePassword(string $serverId, string $password): void
     {
         $create = new XMLCommand();

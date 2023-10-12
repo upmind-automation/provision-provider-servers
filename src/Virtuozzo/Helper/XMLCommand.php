@@ -332,6 +332,49 @@ class XMLCommand
 
     /*
         <?xml version="1.0" encoding="utf-8"?>
+        <packet version="4.0.0" id="2">
+            <target>vzpenvm</target>
+            <data>
+                <vzpenvm>
+                    <install_tools>
+                        <eid>a5961178-14d2-40cc-b1e7-41b562a2f4c6</eid>
+                    </install_tools>
+                </vzpenvm>
+            </data>
+        </packet>
+    */
+    public function installGuestTools(string $serverId): string
+    {
+        $body = $this->setCommandElements('install_tools', [
+            $this->createElement('eid', $serverId),
+        ]);
+
+        return $this->build($body);
+    }
+
+    /*
+        <packet version="4.0.0" id="2">
+            <target>vzpenvm</target>
+            <data>
+                <vzpenvm>
+                    <get_console_info>
+                        <eid>a5961178-14d2-40cc-b1e7-41b562a2f4c6</eid>
+                    </get_console_info>
+                </vzpenvm>
+            </data>
+        </packet>
+    */
+    public function getConsoleInfo(string $serverId): string
+    {
+        $body = $this->setCommandElements('get_console_info', [
+            $this->createElement('eid', $serverId),
+        ]);
+
+        return $this->build($body);
+    }
+
+    /*
+        <?xml version="1.0" encoding="utf-8"?>
         <packet version="4.5.0" id="2">
             <target>vzpenvm</target>
             <data>
@@ -362,7 +405,7 @@ class XMLCommand
                 <vzpenvm>
                     <set_user_password>
                         <eid>6dbd99dc-f212-45de-a5f4-ddb78a2b5280</eid>
-                        <name>root</name>
+                        <user>root</user>
                         <password>bXlwYXNz</password>
                     </set_user_password>
                 </vzpenvm>
@@ -373,7 +416,7 @@ class XMLCommand
     {
         $body = $this->setCommandElements('set_user_password', [
             $this->createElement('eid', $serverId),
-            $this->createElement('name', 'root'),
+            $this->createElement('user', 'root'),
             $this->createElement('password', $password),
         ]);
 

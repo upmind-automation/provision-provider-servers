@@ -7,6 +7,7 @@ namespace Upmind\ProvisionProviders\Servers\Virtuozzo;
 use GuzzleHttp\Client;
 use Throwable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Upmind\ProvisionBase\Provider\Contract\ProviderInterface;
 use Upmind\ProvisionBase\Provider\DataSet\AboutData;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
@@ -55,6 +56,10 @@ class Provider extends Category implements ProviderInterface
 
             $serverId = $this->api()->create($params);
 
+            $this->api()->installGuestTools($serverId);
+
+            $this->api()->start($serverId);
+
             return $this->getServerInfoResult($serverId)->setMessage('Server created successfully!');
         } catch (Throwable $e) {
             $this->handleException($e);
@@ -75,7 +80,13 @@ class Provider extends Category implements ProviderInterface
 
     protected function getServerInfoResult($serverId): ServerInfoResult
     {
-        $info = $this->api()->getServerInfo($serverId);
+        try {
+            $info = $this->api()->getServerInfo($serverId);
+        } catch (ProvisionFunctionError $e) {
+            if (Str::contains($e->getMessage(), 'Empty provider api response')) {
+                throw $this->errorResult('Server not found', ['instance_id' => $serverId], [], $e);
+            }
+        }
 
         return ServerInfoResult::create($info);
     }
@@ -87,6 +98,7 @@ class Provider extends Category implements ProviderInterface
     {
         try {
             $info = $this->api()->getServerInfo($params->instance_id);
+            // $consoleInfo = $this->api()->getConsoleInfo($params->instance_id);
 
             return SshConnectionCommandResult::create()
                 ->setMessage('SSH command generated')
@@ -101,14 +113,14 @@ class Provider extends Category implements ProviderInterface
      */
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        // throw $this->errorResult('Operation not supported');
 
         try {
-            $this->api()->stop($params->instance_id);
+            // $this->api()->stop($params->instance_id);
 
             $this->api()->changePassword($params->instance_id, $params->root_password);
 
-            $this->api()->start($params->instance_id);
+            // $this->api()->start($params->instance_id);
 
             return $this->getServerInfoResult($params->instance_id)->setMessage('Root password changed');
         } catch (Throwable $e) {
@@ -152,7 +164,11 @@ class Provider extends Category implements ProviderInterface
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
         try {
+            $this->api()->stop($params->instance_id);
+
             $this->api()->rebuildServer($params->instance_id, $params->image);
+
+            $this->api()->start($params->instance_id);
 
             return $this->getServerInfoResult($params->instance_id)->setMessage('Server rebuilding with fresh image/template');
         } catch (Throwable $e) {
