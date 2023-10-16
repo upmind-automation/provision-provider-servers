@@ -69,7 +69,7 @@ class Provider extends Category implements ProviderInterface
         }
 
         $serverId = $this->api()->createServer(
-            $virtualizationType,
+            strtolower($virtualizationType),
             $username,
             $params->label,
             $plan['name'],
