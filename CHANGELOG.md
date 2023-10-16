@@ -2,6 +2,11 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v3.0.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.3) - 2023-10-16
+
+- Update SolusVM ApiClient return response_body if responseData is empty
+- Toggle SolusVM virtualization_type parameter to lowercase
+
 ## [v3.0.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.2) - 2023-10-12
 
 - Fix Linode error handling sprintf() error
