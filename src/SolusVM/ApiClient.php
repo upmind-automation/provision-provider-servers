@@ -348,7 +348,7 @@ class ApiClient
         ];
         $errorDebug = [];
 
-        if (is_null($responseData)) {
+        if (empty($responseData)) {
             $errorDebug['response_body'] = $response->getBody()->__toString();
         }
 
