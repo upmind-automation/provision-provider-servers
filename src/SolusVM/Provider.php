@@ -48,7 +48,10 @@ class Provider extends Category implements ProviderInterface
      */
     public function create(CreateParams $params): ServerInfoResult
     {
-        $virtualizationType = $params->virtualization_type ?? $this->configuration->default_virtualization_type;
+        $virtualizationType = strtolower(
+            $params->virtualization_type
+                ?? $this->configuration->default_virtualization_type
+        );
 
         $templateId = $this->findTemplateId($virtualizationType, $params->image);
         $plan = $this->findPlan($virtualizationType, $params->size);
@@ -69,7 +72,7 @@ class Provider extends Category implements ProviderInterface
         }
 
         $serverId = $this->api()->createServer(
-            strtolower($virtualizationType),
+            $virtualizationType,
             $username,
             $params->label,
             $plan['name'],
