@@ -2,6 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v3.0.4](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.4) - 2023-10-17
+
+- Fix SolusVM findNodeGroupId() return type when using node group id
+
 ## [v3.0.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.3) - 2023-10-16
 
 - Update SolusVM ApiClient return response_body if responseData is empty
