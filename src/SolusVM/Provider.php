@@ -361,7 +361,7 @@ class Provider extends Category implements ProviderInterface
 
         if (isset($nodeGroups[$nodeGroup])) {
             // if $nodeGroup is an id, return it
-            return $nodeGroup;
+            return (int)$nodeGroup;
         }
 
         if (in_array($nodeGroup, $nodeGroups, true)) {
