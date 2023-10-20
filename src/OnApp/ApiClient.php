@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Upmind\ProvisionProviders\Servers\OnApp;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ConnectException;
@@ -15,7 +16,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Throwable;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
-use Upmind\ProvisionProviders\DomainNames\Helper\Utils;
 use Upmind\ProvisionBase\Helper;
 use Upmind\ProvisionProviders\Servers\Data\CreateParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
@@ -184,10 +184,10 @@ class ApiClient
             'location' => $location ?? 'Unknown',
             'virtualization_type' => $vm['hypervisor_type'],
             'created_at' => isset($vm['created_at'])
-                ? Utils::formatDate((string)$vm['created_at'])
+                ? Carbon::parse((string)$vm['created_at'])->format('Y-m-d H:i:s')
                 : null,
             'updated_at' => isset($vm['updated_at'])
-                ? Utils::formatDate((string)$vm['updated_at'])
+                ? Carbon::parse((string)$vm['updated_at'])->format('Y-m-d H:i:s')
                 : null,
         ];
     }
