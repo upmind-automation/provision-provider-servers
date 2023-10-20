@@ -151,7 +151,7 @@ class ApiClient
 
         $primaryDisk = $this->getPrimaryDisk($serverId);
 
-        $location = $this->getLocation($vm['hypervisor_id']);
+        $location = $this->getHypervisorLocation($vm['hypervisor_id']);
 
         $ipAddress = null;
 
@@ -172,7 +172,7 @@ class ApiClient
         }
 
         return [
-            'instance_id' => (string)$vm['id'] ?? 'Unknown',
+            'instance_id' => (string)$vm['identifier'] ?? 'Unknown',
             'state' => $this->getState($vm),
             'label' => $vm['label'] ?? 'Unknown',
             'hostname' => $vm['hostname'] ?? 'Unknown',
@@ -217,23 +217,35 @@ class ApiClient
 
     public function create(CreateParams $params): string
     {
+        $locationId = $this->findLocation($params->location)['id'];
+        $templateId = $this->findTemplate($params->image)['id'];
+
         $body = [
             'virtual_machine' => [
                 'cpu_shares' => 1,
                 'hostname' => $params->label,
                 'label' => $params->label,
-                'template_id' => $params->image,
+                'template_id' => $templateId,
                 'memory' => $params->memory_mb,
                 'cpus' => $params->cpu_cores,
-                'primary_disk_size' => ($params->disk_mb) / 1024,
+                'primary_disk_size' => (int)round(($params->disk_mb) / 1024),
                 'required_virtual_machine_build' => 1,
-                'location_id' => $params->location,
+                'required_virtual_machine_startup' => 1,
+                'location_id' => $locationId,
+                'initial_root_password' => $params->root_password,
             ]
         ];
 
         $response = $this->makeRequest("/virtual_machines.json", null, $body, 'POST');
 
-        return (string)$response['virtual_machine']['id'];
+        if (!$id = $response['virtual_machine']['identifier']) {
+            throw ProvisionFunctionError::create('Server creation failed')
+            ->withData([
+                'result_data' => $response,
+            ]);
+        }
+
+        return $id;
     }
 
     public function changePassword(string $serverId, string $password): void
@@ -301,11 +313,13 @@ class ApiClient
         $this->makeRequest("/virtual_machines/{$serverId}.json", $params, null, 'DELETE');
     }
 
-    public function rebuildServer(string $serverId, string $image)
+    public function rebuildServer(string $serverId, string $image): void
     {
+        $templateId = $this->findTemplate($image)['id'];
+
         $body = [
             'virtual_machine' => [
-                'template_id' => $image,
+                'template_id' => $templateId,
                 'required_startup' => 1,
             ]
         ];
@@ -313,7 +327,79 @@ class ApiClient
         $this->makeRequest("/virtual_machines/{$serverId}/build.json", null, $body, 'POST');
     }
 
-    public function getLocation(int $hypervisor_id): ?string
+    public function getTemplate(int $templateId): array
+    {
+        $response = $this->makeRequest("/templates/{$templateId}.json");
+        return $response['image_template'];
+    }
+
+    public function listTemplates(): array
+    {
+        $response = $this->makeRequest("/templates/system.json");
+        return $response;
+    }
+
+    public function findTemplate($templateName): array
+    {
+        if (is_numeric($templateName)) {
+            return $this->getTemplate((int)$templateName);
+        }
+
+        // $response = $this->makeRequest('/templates/available.json?search_filter[query]=' . $templateName);
+        // if (!$template = $response[0]['remote_template']) {
+        //     throw ProvisionFunctionError::create('Image template not found')
+        //         ->withData([
+        //             'template' => $templateName,
+        //         ]);
+        // }
+
+        // return $template;
+
+        foreach ($this->listTemplates() as $template) {
+            $template = $template['image_template'];
+            if ($templateName === $template['label']) {
+                return $template;
+            }
+        }
+
+        throw ProvisionFunctionError::create('Template not found')
+        ->withData([
+            'template' => $templateName,
+        ]);
+    }
+
+    public function getLocation(int $locationId): array
+    {
+        $response = $this->makeRequest("/settings/location_groups/{$locationId}.json");
+        return $response['location_group'];
+    }
+
+    public function listLocations(): array
+    {
+        $response = $this->makeRequest("/settings/location_groups.json");
+        return $response;
+    }
+
+    public function findLocation($locationName): array
+    {
+        if (is_numeric($locationName)) {
+            return $this->getLocation((int)$locationName);
+        }
+
+        foreach ($this->listLocations() as $location) {
+            $location = $location['location_group'];
+            if ($locationName === $this->getLocationName($location['city'], $location['country'])) {
+                return $location;
+            }
+        }
+
+        throw ProvisionFunctionError::create('Location not found')
+        ->withData([
+            'location' => $locationName,
+        ]);
+    }
+
+    public function getHypervisorLocation(int $hypervisor_id): ?string
     {
         $response = $this->makeRequest("/settings/hypervisors/{$hypervisor_id}.json");
         $hypervisorGroupId = $response['hypervisor']['hypervisor_group_id'];
@@ -321,11 +407,13 @@ class ApiClient
         $response = $this->makeRequest("/settings/hypervisor_zones/{$hypervisorGroupId}.json");
         $locationId = $response['hypervisor_group']['location_group_id'];
 
-        $response = $this->makeRequest("/settings/location_groups/{$locationId}.json");
-        $location = $response['location_group'];
+        $location = $this->getLocation((int)$locationId);
 
         return "{$location['country']} ({$location['city']})";
     }
+
+    public function getLocationName(string $city, string $country): string
+    {
+        return "{$country} ({$city})";
+    }
 }
-
-
