@@ -40,7 +40,7 @@ class ApiClient
                 'Authorization' => ['Basic ' . $credentials],
             ],
             'connect_timeout' => 10,
-            'timeout' => 60,
+            'timeout' => $configuration->timeout ?? 120,
             'handler' => $handler,
         ]);
     }
