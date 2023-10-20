@@ -40,6 +40,7 @@ The following providers are currently implemented:
   - [SolusVM v1](https://docs.solusvm.com/v1/api/API%2Boverview.html)
   - [Virtualizor](https://www.virtualizor.com/docs/admin-api/virtual-servers/)
   - [Virtuozzo Hybrid Server 7](https://docs.virtuozzo.com/legacy/va61/Virtuozzo_Automator_Agent_XML_API_Reference.pdf)
+  - [OnApp](https://docs.onapp.com/apim/6.0)
 
 ## Functions
 
