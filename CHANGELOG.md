@@ -4,7 +4,7 @@ All notable changes to the package will be documented in this file.
 
 ## [v3.1.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.1.0) - 2023-10-20
 
-- Fix SolusVM findNodeGroupId() return type when using node group id
+- Implement OnApp provider
 
 ## [v3.0.4](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.0.4) - 2023-10-17
 
