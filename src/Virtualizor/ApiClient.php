@@ -542,7 +542,6 @@ class ApiClient
             ]);
         }
 
-
         if ($response->getStatusCode() !== 200) {
             throw $this->throwError(sprintf('API %s Error', $response->getStatusCode()), [
                 'http_code' => $response->getStatusCode(),

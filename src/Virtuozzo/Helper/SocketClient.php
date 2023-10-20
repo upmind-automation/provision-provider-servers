@@ -25,7 +25,6 @@ class SocketClient
     /** @var boolean $logging */
     protected $logging;
 
-
     public function __construct(string $host, int $port, bool $debug)
     {
         $this->host = $host;
@@ -40,7 +39,6 @@ class SocketClient
     {
         $this->logger = $logger;
     }
-
 
     protected function writeLog(string $text, string $action)
     {
@@ -87,7 +85,6 @@ class SocketClient
                 $flags,
                 stream_context_create()
             )
-
         ) {
             throw ProvisionFunctionError::create("Can't connect to socket: $errorCode, $errorMessage");
         }
@@ -100,7 +97,6 @@ class SocketClient
 
         $this->client = $client;
     }
-
 
     /**
      * @param int $length
@@ -132,7 +128,6 @@ class SocketClient
         try {
             $resultXml = $this->cleanUpNamespaces($response);
             $resultXml = new SimpleXMLElement($resultXml);
-
         } catch (\Exception $e) {
             throw ProvisionFunctionError::create("Can't parse response", $e)
                 ->withData([
@@ -160,7 +155,6 @@ class SocketClient
         return $resultXml;
     }
 
-
     public function read(): string
     {
         $result = '';
@@ -174,7 +168,6 @@ class SocketClient
 
         return $result;
     }
-
 
     public function checkAuth(string $response): void
     {
@@ -211,7 +204,6 @@ class SocketClient
 
         return null;
     }
-
 
     public function cleanUpNamespaces($xml_root)
     {

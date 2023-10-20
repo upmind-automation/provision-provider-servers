@@ -214,7 +214,6 @@ class Provider extends Category implements ProviderInterface
             $this->api()->destroy($params->instance_id);
 
             return EmptyResult::create()->setMessage('Server is deleting');
-
         } catch (Throwable $e) {
             $this->handleException($e);
         }

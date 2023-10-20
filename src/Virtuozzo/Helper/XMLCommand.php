@@ -33,8 +33,7 @@ class XMLCommand
         string $version = '7.0.0',
         string $encoding = self::XML_ENCODING,
         string $interface = 'vzpenvm'
-    )
-    {
+    ) {
         $this->domDocument = new DOMDocument(self::XML_VERSION, $encoding);
 
         $this->apiVersion = $version;
@@ -181,7 +180,6 @@ class XMLCommand
             }
 
             return $config;
-
         } catch (Exception $e) {
             throw ProvisionFunctionError::create("Can't build XML command", $e);
         }
@@ -303,8 +301,7 @@ class XMLCommand
         int    $memorySize,
         int    $cpuCount,
         int    $diskSize
-    ): string
-    {
+    ): string {
         $template = $this->createOSElement($image, $platform);
 
         $deviceList = $this->createElement('device_list');
@@ -452,8 +449,7 @@ class XMLCommand
         string $sysName,
         int    $diskSize,
         string $ip
-    ): string
-    {
+    ): string {
         $deviceList = $this->createElement('device_list');
 
         $device = $this->createHardDiskDeviceElement($diskSize);
@@ -494,7 +490,8 @@ class XMLCommand
     */
     public function restartServer(string $serverId): string
     {
-        $body = $this->setCommandElements('restart',
+        $body = $this->setCommandElements(
+            'restart',
             $this->createElement('eid', $serverId),
         );
 
@@ -540,7 +537,8 @@ class XMLCommand
     */
     public function startServer(string $serverId): string
     {
-        $body = $this->setCommandElements('start',
+        $body = $this->setCommandElements(
+            'start',
             $this->createElement('eid', $serverId)
         );
 
@@ -562,7 +560,8 @@ class XMLCommand
     */
     public function destroyServer(string $serverId): string
     {
-        $body = $this->setCommandElements('destroy',
+        $body = $this->setCommandElements(
+            'destroy',
             $this->createElement('eid', $serverId)
         );
 

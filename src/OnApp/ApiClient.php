@@ -45,14 +45,12 @@ class ApiClient
         ]);
     }
 
-
     public function makeRequest(
         string  $command,
         ?array  $params = null,
         ?array  $body = null,
         ?string $method = 'GET'
-    ): ?array
-    {
+    ): ?array {
         try {
             $requestParams = [];
 
@@ -279,7 +277,6 @@ class ApiClient
         ];
 
         $this->makeRequest("/virtual_machines/{$serverId}/disks/{$primaryDisk['id']}.json", null, $body, 'PUT');
-
     }
 
     public function getPrimaryDisk(string $serverId): array
@@ -300,7 +297,6 @@ class ApiClient
 
     public function start(string $serverId): void
     {
-
         $this->makeRequest("/virtual_machines/{$serverId}/startup.json", null, null, 'POST');
     }
 

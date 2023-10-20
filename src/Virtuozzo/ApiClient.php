@@ -53,7 +53,6 @@ class ApiClient
         return $resultXml;
     }
 
-
     /**
      * @throws ProvisionFunctionError
      */
@@ -273,4 +272,3 @@ class ApiClient
         throw ProvisionFunctionError::create('Image not found');
     }
 }
-

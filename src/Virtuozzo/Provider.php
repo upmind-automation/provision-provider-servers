@@ -241,7 +241,6 @@ class Provider extends Category implements ProviderInterface
             $this->api()->destroy($params->instance_id);
 
             return EmptyResult::create()->setMessage('Server permanently deleted');
-
         } catch (Throwable $e) {
             $this->handleException($e);
         }
@@ -251,7 +250,6 @@ class Provider extends Category implements ProviderInterface
     {
         return $this->apiClient ??= new ApiClient($this->configuration, $this->getLogger());
     }
-
 
     /**
      * @return no-return
