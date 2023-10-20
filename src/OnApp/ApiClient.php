@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Upmind\ProvisionProviders\Servers\OnApp;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Throwable;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
 use Upmind\ProvisionProviders\DomainNames\Helper\Utils;
 use Upmind\ProvisionBase\Helper;
@@ -50,26 +53,30 @@ class ApiClient
         ?string $method = 'GET'
     ): ?array
     {
-        $requestParams = [];
+        try {
+            $requestParams = [];
 
-        if ($params) {
-            $requestParams['query'] = $params;
+            if ($params) {
+                $requestParams['query'] = $params;
+            }
+
+            if ($body) {
+                $requestParams['json'] = $body;
+            }
+
+            $response = $this->client->request($method, $command, $requestParams);
+            $result = $response->getBody()->getContents();
+
+            $response->getBody()->close();
+
+            if ($result === '') {
+                return null;
+            }
+
+            return $this->parseResponseData($result);
+        } catch (Throwable $e) {
+            throw $this->handleException($e);
         }
-
-        if ($body) {
-            $requestParams['form_params'] = $body;
-        }
-
-        $response = $this->client->request($method, $command, $requestParams);
-        $result = $response->getBody()->getContents();
-
-        $response->getBody()->close();
-
-        if ($result === '') {
-            return null;
-        }
-
-        return $this->parseResponseData($result);
     }
 
     private function parseResponseData(string $response): array
@@ -84,6 +91,57 @@ class ApiClient
         }
 
         return $parsedResult;
+    }
+
+    /**
+     * @return no-return
+     */
+    private function handleException(Throwable $e): void
+    {
+        if ($e instanceof ConnectException) {
+            throw ProvisionFunctionError::create('Provider API Connection error')
+            ->withData([
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        if ($e instanceof TransferException) {
+            if ($e instanceof BadResponseException && $e->hasResponse()) {
+                $response = $e->getResponse();
+                $reason = $response->getReasonPhrase();
+                $responseBody = $response->getBody()->__toString();
+                $responseData = json_decode($responseBody, true);
+
+                $messages = [];
+                $errors = $responseData['errors'] ?? $responseData['error'] ?? [];
+                foreach ($errors as $key => $value) {
+                    if (is_array($value)) {
+                        $messages[] = $key . ': ' . implode(', ', $value);
+                    } else {
+                        $messages[] = $value;
+                    }
+                }
+
+                if ($messages) {
+                    $errorMessage = implode(', ', $messages);
+                }
+
+                if (!isset($errorMessage) && $reason === 'Unauthorized') {
+                    $errorMessage = 'Unauthorized - check credentials and whitelisted IPs';
+                }
+            }
+
+            $errorMessage = sprintf('Provider API error: %s', $errorMessage ?? $reason ?? 'Unknown');
+            throw ProvisionFunctionError::create($errorMessage)
+                ->withData([
+                    'response_data' => $responseData ?? null,
+                ]);
+        }
+
+        throw ProvisionFunctionError::create('Unknown Provider API Error')
+            ->withData([
+                'message' => $e->getMessage(),
+            ]);
     }
 
     public function getServerInfo(string $serverId): ?array
