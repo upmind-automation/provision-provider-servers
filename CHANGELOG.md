@@ -2,6 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v3.1.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.1.1) - 2023-12-05
+
+- Update OnApp API error handling; tweak result message and error data
+
 ## [v3.1.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.1.0) - 2023-10-20
 
 - Implement OnApp provider
