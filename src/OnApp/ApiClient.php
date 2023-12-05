@@ -96,19 +96,33 @@ class ApiClient
      */
     private function handleException(Throwable $e): void
     {
+        if ($e instanceof ProvisionFunctionError) {
+            throw $e;
+        }
+
+        $errorData = [
+            'exception' => get_class($e),
+        ];
+
         if ($e instanceof ConnectException) {
-            throw ProvisionFunctionError::create('Provider API Connection error')
-            ->withData([
-                'message' => $e->getMessage(),
-            ]);
+            $errorData['connection_error'] = $e->getMessage();
+            throw ProvisionFunctionError::create('Provider API Connection error', $e)
+                ->withData($errorData);
         }
 
         if ($e instanceof TransferException) {
             if ($e instanceof BadResponseException && $e->hasResponse()) {
                 $response = $e->getResponse();
                 $reason = $response->getReasonPhrase();
-                $responseBody = $response->getBody()->__toString();
+                $responseBody = trim($response->getBody()->__toString());
                 $responseData = json_decode($responseBody, true);
+
+                $errorData['http_code'] = $response->getStatusCode();
+                if (isset($responseData)) {
+                    $errorData['response_data'] = $responseData;
+                } else {
+                    $errorData['response_body'] = Str::limit($responseBody, 1000);
+                }
 
                 $messages = [];
                 $errors = $responseData['errors'] ?? $responseData['error'] ?? [];
@@ -127,19 +141,19 @@ class ApiClient
                 if (!isset($errorMessage) && $reason === 'Unauthorized') {
                     $errorMessage = 'Unauthorized - check credentials and whitelisted IPs';
                 }
+
+                if (Str::contains($errorMessage ?? '', 'account has been locked')) {
+                    $errorMessage = 'Configuration account error';
+                }
             }
 
             $errorMessage = sprintf('Provider API error: %s', $errorMessage ?? $reason ?? 'Unknown');
             throw ProvisionFunctionError::create($errorMessage)
-                ->withData([
-                    'response_data' => $responseData ?? null,
-                ]);
+                ->withData($errorData);
         }
 
-        throw ProvisionFunctionError::create('Unknown Provider API Error')
-            ->withData([
-                'message' => $e->getMessage(),
-            ]);
+        throw ProvisionFunctionError::create('Unknown Provider API Error', $e)
+            ->withData($errorData);
     }
 
     public function getServerInfo(string $serverId): ?array
