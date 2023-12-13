@@ -20,7 +20,7 @@ Follow the below steps to create a new provider, using the fictitious provider "
 
 1. Install the [Upmind Provision Workbench](https://github.com/upmind-automation/provision-workbench#readme)
 2. Fork [this repository](https://github.com/upmind-automation/provision-provider-servers)
-3. Clone your fork into the `local/` directory where you have installed the provision workbench and run `composer install upmind/provision-provider-servers:@dev` - it will install from your fork in local/
+3. Clone your fork into the `local/` directory where you have installed the provision workbench and run `composer require upmind/provision-provider-servers:@dev` - it will install from your fork in local/
 4. In your fork of upmind/provision-provider-servers copy the `src/Example` directory to create `src/FooPlatform` and update the namespace on files under `src/FooPlatform`
 5. Update the sample Configuration class for FooPlatform API credentials (hostname, username, api_key, sandbox, debug etc)
 6. Bind your new provider to the provision registry in `src/LaravelServiceProvider.php`
