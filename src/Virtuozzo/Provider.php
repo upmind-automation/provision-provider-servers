@@ -86,6 +86,8 @@ class Provider extends Category implements ProviderInterface
             if (Str::contains($e->getMessage(), 'Empty provider api response')) {
                 throw $this->errorResult('Server not found', ['instance_id' => $serverId], [], $e);
             }
+
+            throw $e;
         }
 
         return ServerInfoResult::create($info);
