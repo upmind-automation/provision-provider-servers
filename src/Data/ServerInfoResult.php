@@ -106,9 +106,36 @@ class ServerInfoResult extends ResultData
     /**
      * @return static $this
      */
-    public function setSize(string $size)
+    public function setSize(?string $size)
     {
         $this->setValue('size', $size);
+        return $this;
+    }
+
+    /**
+     * @return static $this
+     */
+    public function setMemoryMb(?int $memoryMb)
+    {
+        $this->setValue('memory_mb', $memoryMb);
+        return $this;
+    }
+
+    /**
+     * @return static $this
+     */
+    public function setCpuCores(?int $cpuCores)
+    {
+        $this->setValue('cpu_cores', $cpuCores);
+        return $this;
+    }
+
+    /**
+     * @return static $this
+     */
+    public function setDiskMb(?int $diskMb)
+    {
+        $this->setValue('disk_mb', $diskMb);
         return $this;
     }
 
