@@ -2,6 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v3.2.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.2.0) - 2024-03-01
+
+- Add setters for new ServerInfoResult properties `disk_mb`, `memory_mb` and `cpu_cores`
+
 ## [v3.1.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.1.2) - 2024-01-24
 
 - Fix undefined variable error after unknown exception in Virtuozzo getInfo()
