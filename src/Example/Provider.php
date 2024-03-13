@@ -15,7 +15,7 @@ use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
-use Upmind\ProvisionProviders\Servers\Data\SshConnectionCommandResult;
+use Upmind\ProvisionProviders\Servers\Data\ConnectionCommandResult;
 use Upmind\ProvisionProviders\Servers\Example\Data\Configuration;
 
 /**
@@ -71,7 +71,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      */
-    public function getSshConnectionCommand(ServerIdentifierParams $params): SshConnectionCommandResult
+    public function getConnectionCommand(ServerIdentifierParams $params): ConnectionCommandResult
     {
         throw $this->errorResult('Not implemented');
     }

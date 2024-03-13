@@ -2,6 +2,11 @@
 
 All notable changes to the package will be documented in this file.
 
+## v4.0.0 - TBC
+
+- Rename `getSshConnectionCommand()` to `getConnectionCommand()`
+  - Add `type` to result data to determine connection type returned values
+
 ## [v3.2.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.2.0) - 2024-03-01
 
 - Add setters for new ServerInfoResult properties `disk_mb`, `memory_mb` and `cpu_cores`

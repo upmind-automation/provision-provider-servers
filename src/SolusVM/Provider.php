@@ -17,7 +17,7 @@ use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
-use Upmind\ProvisionProviders\Servers\Data\SshConnectionCommandResult;
+use Upmind\ProvisionProviders\Servers\Data\ConnectionCommandResult;
 use Upmind\ProvisionProviders\Servers\SolusVM\ApiClient as SolusVMClient;
 use Upmind\ProvisionProviders\Servers\SolusVM\Data\Configuration;
 
@@ -99,11 +99,12 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      */
-    public function getSshConnectionCommand(ServerIdentifierParams $params): SshConnectionCommandResult
+    public function getConnectionCommand(ServerIdentifierParams $params): ConnectionCommandResult
     {
         $session = $this->api()->createConsoleSession($params->instance_id);
 
-        return SshConnectionCommandResult::create()
+        return ConnectionCommandResult::create()
+            ->setType(ConnectionCommandResult::TYPE_SSH)
             ->setCommand(sprintf(
                 'ssh %s@%s -p %s',
                 $session['consoleusername'],

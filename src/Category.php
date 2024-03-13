@@ -13,7 +13,7 @@ use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
-use Upmind\ProvisionProviders\Servers\Data\SshConnectionCommandResult;
+use Upmind\ProvisionProviders\Servers\Data\ConnectionCommandResult;
 
 abstract class Category extends BaseCategory
 {
@@ -37,9 +37,9 @@ abstract class Category extends BaseCategory
     abstract public function getInfo(ServerIdentifierParams $params): ServerInfoResult;
 
     /**
-     * Get a command to SSH into a server.
+     * Get a command to connect to a server.
      */
-    abstract public function getSshConnectionCommand(ServerIdentifierParams $params): SshConnectionCommandResult;
+    abstract public function getConnectionCommand(ServerIdentifierParams $params): ConnectionCommandResult;
 
     /**
      * Update the root password used to SSH into a server.

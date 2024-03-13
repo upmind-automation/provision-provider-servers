@@ -20,7 +20,7 @@ use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
-use Upmind\ProvisionProviders\Servers\Data\SshConnectionCommandResult;
+use Upmind\ProvisionProviders\Servers\Data\ConnectionCommandResult;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Data\Configuration;
 
 class Provider extends Category implements ProviderInterface
@@ -96,14 +96,15 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      */
-    public function getSshConnectionCommand(ServerIdentifierParams $params): SshConnectionCommandResult
+    public function getConnectionCommand(ServerIdentifierParams $params): ConnectionCommandResult
     {
         try {
             $info = $this->api()->getServerInfo($params->instance_id);
             // $consoleInfo = $this->api()->getConsoleInfo($params->instance_id);
 
-            return SshConnectionCommandResult::create()
+            return ConnectionCommandResult::create()
                 ->setMessage('SSH command generated')
+                ->setType(ConnectionCommandResult::TYPE_SSH)
                 ->setCommand(sprintf('ssh root@%s', $info['ip_address'] ?? $info['hostname']));
         } catch (Throwable $e) {
             $this->handleException($e);
