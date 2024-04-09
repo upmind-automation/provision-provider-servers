@@ -34,7 +34,7 @@ class ServerInfoResult extends ResultData
             'state' => ['required', 'string'],
             'label' => ['required', 'string'],
             'hostname' => ['nullable', 'alpha_dash_dot'],
-            'ip_address' => ['nullable', 'ip'],
+            'ip_address' => ['nullable', 'string'],
             'image' => ['required', 'string'],
             'size' => ['required_without:memory_mb,cpu_cores,disk_mb', 'string'],
             'memory_mb' => ['required_without:size', 'integer'],
