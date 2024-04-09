@@ -190,6 +190,22 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($params->instance_id)->setMessage($message ?? 'Server is booting');
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function suspend(ServerIdentifierParams $params): ServerInfoResult
+    {
+        return $this->shutdown($params);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
+    {
+        return $this->powerOn($params);
+    }
+
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
         try {

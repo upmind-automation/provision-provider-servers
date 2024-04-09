@@ -258,6 +258,22 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      */
+    public function suspend(ServerIdentifierParams $params): ServerInfoResult
+    {
+        return $this->shutdown($params);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
+    {
+        return $this->powerOn($params);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
         $this->api()->deleteVirtualServer($params->instance_id);

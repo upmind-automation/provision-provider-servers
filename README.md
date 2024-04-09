@@ -55,6 +55,8 @@ The following providers are currently implemented:
 | reboot() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Reboot (shutdown then power-on) a running server |
 | shutdown() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Shut down a running server |
 | powerOn() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Boot a powered-off server |
+| suspend() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Suspend a server |
+| unsuspend() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Unsuspend a server |
 | terminate() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_EmptyResult_](src/Data/EmptyResult.php) | Terminate (delete) an existing server |
 
 ## Changelog

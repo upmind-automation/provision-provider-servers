@@ -72,6 +72,16 @@ abstract class Category extends BaseCategory
     abstract public function powerOn(ServerIdentifierParams $params): ServerInfoResult;
 
     /**
+     * Suspend a server.
+     */
+    abstract public function suspend(ServerIdentifierParams $params): ServerInfoResult;
+
+    /**
+     * Unsuspend a server.
+     */
+    abstract public function unsuspend(ServerIdentifierParams $params): ServerInfoResult;
+
+    /**
      * Terminate (delete) an existing server.
      */
     abstract public function terminate(ServerIdentifierParams $params): EmptyResult;
