@@ -19,6 +19,9 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read integer $disk_mb Server RAM size in megabytes
  * @property-read string|null $root_password Server root password
  * @property-read string|null $virtualization_type Virtualization type
+ * @property-read string[]|null $software Software to install
+ * @property-read string[]|null $licenses Licenses to create
+ * @property-read array|null $metadata Additional metadata
  */
 class CreateParams extends DataSet
 {
@@ -36,6 +39,9 @@ class CreateParams extends DataSet
             'disk_mb' => ['required_without:size', 'integer'],
             'root_password' => ['nullable', 'string'],
             'virtualization_type' => ['nullable', 'string'],
+            'software' => ['nullable', 'array'],
+            'licenses' => ['nullable', 'array'],
+            'metadata' => ['nullable', 'array'],
         ]);
     }
 }
