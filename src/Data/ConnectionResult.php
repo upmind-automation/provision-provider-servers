@@ -13,7 +13,7 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read string|null $password
  * @property-read string|null $expires_at
  */
-class ConnectionCommandResult extends ResultData
+class ConnectionResult extends ResultData
 {
     public static function rules(): Rules
     {

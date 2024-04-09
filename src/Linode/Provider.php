@@ -29,7 +29,7 @@ use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
-use Upmind\ProvisionProviders\Servers\Data\ConnectionCommandResult;
+use Upmind\ProvisionProviders\Servers\Data\ConnectionResult;
 use Upmind\ProvisionProviders\Servers\Linode\Data\Configuration;
 
 class Provider extends Category implements ProviderInterface
@@ -84,11 +84,11 @@ class Provider extends Category implements ProviderInterface
         return $this->getServerInfo($params->instance_id);
     }
 
-    public function getConnectionCommand(ServerIdentifierParams $params): ConnectionCommandResult
+    public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
         $server = $this->findServer((int)$params->instance_id);
 
-        return ConnectionCommandResult::create()
+        return ConnectionResult::create()
             ->setCommand(sprintf('ssh root@%s', Arr::first($server->ipv4)));
     }
 

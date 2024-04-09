@@ -15,7 +15,7 @@ use Upmind\ProvisionProviders\Servers\Data\ReinstallParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
-use Upmind\ProvisionProviders\Servers\Data\ConnectionCommandResult;
+use Upmind\ProvisionProviders\Servers\Data\ConnectionResult;
 use Upmind\ProvisionProviders\Servers\Virtualizor\Data\Configuration;
 
 /**
@@ -134,14 +134,14 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      */
-    public function getConnectionCommand(ServerIdentifierParams $params): ConnectionCommandResult
+    public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
         // $vnc = $this->api()->getVncInfo($params->instance_id);
         $info = $this->getServerInfoResult($params->instance_id);
 
-        return ConnectionCommandResult::create()
+        return ConnectionResult::create()
             ->setMessage('SSH command generated')
-            ->setType(ConnectionCommandResult::TYPE_SSH)
+            ->setType(ConnectionResult::TYPE_SSH)
             ->setCommand(sprintf('ssh root@%s', $info['ip_address']));
     }
 
