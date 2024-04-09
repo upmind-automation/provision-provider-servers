@@ -26,6 +26,7 @@ class ConnectionCommandResult extends ResultData
             ],
             'url' => [
                 'required_if:type,' . self::TYPE_REDIRECT,
+                'required_if:type,' . self::TYPE_VNC,
                 'url',
             ],
             'password' => ['nullable', 'string'],
@@ -75,6 +76,15 @@ class ConnectionCommandResult extends ResultData
     public function setCommand(?string $command): self
     {
         $this->setValue('command', $command);
+        return $this;
+    }
+
+    /**
+     * @return self $this
+     */
+    public function setUrl(?string $url): self
+    {
+        $this->setValue('url', $url);
         return $this;
     }
 
