@@ -82,6 +82,16 @@ abstract class Category extends BaseCategory
     abstract public function unsuspend(ServerIdentifierParams $params): ServerInfoResult;
 
     /**
+     * Attach recovery ISO.
+     */
+    abstract public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult;
+
+    /**
+     * Detach recovery ISO.
+     */
+    abstract public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult;
+
+    /**
      * Terminate (delete) an existing server.
      */
     abstract public function terminate(ServerIdentifierParams $params): EmptyResult;

@@ -57,6 +57,8 @@ The following providers are currently implemented:
 | powerOn() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Boot a powered-off server |
 | suspend() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Suspend a server |
 | unsuspend() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Unsuspend a server |
+| attachRecoveryIso() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Attach recovery ISO |
+| detachRecoveryIso() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_ServerInfoResult_](src/Data/ServerInfoResult.php) | Detach recovery ISO |
 | terminate() | [_ServerIdentifierParams_](src/Data/ServerIdentifierParams.php) | [_EmptyResult_](src/Data/EmptyResult.php) | Terminate (delete) an existing server |
 
 ## Changelog

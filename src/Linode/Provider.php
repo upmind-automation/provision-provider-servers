@@ -206,6 +206,22 @@ class Provider extends Category implements ProviderInterface
         return $this->powerOn($params);
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
+    {
+        throw $this->errorResult('Operation not supported');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
+    {
+        throw $this->errorResult('Operation not supported');
+    }
+
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
         try {
