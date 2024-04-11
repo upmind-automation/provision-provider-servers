@@ -10,6 +10,7 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
 /**
  * @property-read string $instance_id Server instance identifier
  * @property-read string $state Server state e.g., ready/suspended/pending etc
+ * @property-read bool|null $suspended Whether the server is suspended
  * @property-read string $label Server instance label/name
  * @property-read string|null $hostname Server hostname
  * @property-read string|null $ip_address Server IP address
@@ -24,6 +25,9 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read string|int|null $customer_identifier
  * @property-read string|null $created_at
  * @property-read string|null $updated_at
+ * @property-read array|null $software
+ * @property-read array|null $licenses
+ * @property-read array|null $metadata
  */
 class ServerInfoResult extends ResultData
 {
@@ -32,6 +36,7 @@ class ServerInfoResult extends ResultData
         return new Rules([
             'instance_id' => ['required', 'string'],
             'state' => ['required', 'string'],
+            'suspended' => ['nullable', 'bool'],
             'label' => ['required', 'string'],
             'hostname' => ['nullable', 'alpha_dash_dot'],
             'ip_address' => ['nullable', 'string'],
@@ -46,6 +51,9 @@ class ServerInfoResult extends ResultData
             'customer_identifier' => ['nullable'],
             'created_at' => ['date_format:Y-m-d H:i:s'],
             'updated_at' => ['date_format:Y-m-d H:i:s'],
+            'software' => ['nullable', 'array'],
+            'licenses' => ['nullable', 'array'],
+            'metadata' => ['nullable', 'array'],
         ]);
     }
 
@@ -55,6 +63,15 @@ class ServerInfoResult extends ResultData
     public function setState(string $state)
     {
         $this->setValue('state', $state);
+        return $this;
+    }
+
+    /**
+     * @return static $this
+     */
+    public function setSuspended(?bool $suspended)
+    {
+        $this->setValue('suspended', $suspended);
         return $this;
     }
 
@@ -192,6 +209,33 @@ class ServerInfoResult extends ResultData
     public function setUpdatedAt(string $updatedAt)
     {
         $this->setValue('updated_at', $updatedAt);
+        return $this;
+    }
+
+    /**
+     * @return static $this
+     */
+    public function setSoftware(?array $software)
+    {
+        $this->setValue('software', $software);
+        return $this;
+    }
+
+    /**
+     * @return static $this
+     */
+    public function setLicenses(?array $licenses)
+    {
+        $this->setValue('licenses', $licenses);
+        return $this;
+    }
+
+    /**
+     * @return static $this
+     */
+    public function setMetadata(?array $metadata)
+    {
+        $this->setValue('metadata', $metadata);
         return $this;
     }
 }

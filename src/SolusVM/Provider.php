@@ -213,7 +213,8 @@ class Provider extends Category implements ProviderInterface
      */
     public function suspend(ServerIdentifierParams $params): ServerInfoResult
     {
-        return $this->shutdown($params);
+        return $this->shutdown($params)
+            ->setSuspended(true);
     }
 
     /**
@@ -221,7 +222,8 @@ class Provider extends Category implements ProviderInterface
      */
     public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
     {
-        return $this->powerOn($params);
+        return $this->powerOn($params)
+            ->setSuspended(false);
     }
 
 
