@@ -4,8 +4,23 @@ All notable changes to the package will be documented in this file.
 
 ## v4.0.0 - TBC
 
-- Rename `getSshConnectionCommand()` to `getConnectionCommand()`
+- Rename `getSshConnectionCommand()` to `getConnection()`
   - Add `type` to result data to determine connection type returned values
+  - Add `redirect_url` for when `type` is "redirect"
+  - Add `vnc_connection` for when `type` is "vnc"
+- Add `suspend()` and `unsuspend()` functions
+  - Add `suspended` flag to ServerInfoResult
+- Add `attachRecoveryIso()` and `detachRecoveryIso()` functions
+- Update CreateParams
+  - Add `software` array
+  - Add `licenses` array
+  - Add `metadata` array
+- Update ServerInfoResult
+  - Add `suspended` bool
+  - Add `software` array
+  - Add `licenses` array
+  - Add `metadata` array
+- Loosen `ip_address` validation in ServerInfoResult
 
 ## [v3.2.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v3.2.0) - 2024-03-01
 
