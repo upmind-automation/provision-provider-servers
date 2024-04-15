@@ -9,7 +9,10 @@ use Upmind\ProvisionBase\Provider\DataSet\ResultData;
 use Upmind\ProvisionBase\Provider\DataSet\Rules;
 
 /**
- * @property-read string $command SSH command
+ * @property-read string $type Connection type
+ * @property-read string|null $command SSH command
+ * @property-read string|null $redirect_url Redirect URL
+ * @property-read VncConnection|null $vnc_connection VNC connection
  * @property-read string|null $password
  * @property-read string|null $expires_at
  */
@@ -24,11 +27,11 @@ class ConnectionResult extends ResultData
                 'string',
                 'regex:/^ssh [a-z0-9\.\-\_]+@[a-z0-9\.\-]+/i',
             ],
-            'url' => [
+            'redirect_url' => [
                 'required_if:type,' . self::TYPE_REDIRECT,
-                'required_if:type,' . self::TYPE_VNC,
                 'url',
             ],
+            'vnc_connection' => ['required_if:type,' . self::TYPE_VNC, 'nullable', VncConnection::class],
             'password' => ['nullable', 'string'],
             'expires_at' => ['nullable', 'date'],
         ]);
@@ -82,9 +85,18 @@ class ConnectionResult extends ResultData
     /**
      * @return self $this
      */
-    public function setUrl(?string $url): self
+    public function setRedirectUrl(?string $url): self
     {
-        $this->setValue('url', $url);
+        $this->setValue('redirect_url', $url);
+        return $this;
+    }
+
+    /**
+     * @return self $this
+     */
+    public function setVncConnection(?VncConnection $vnc): self
+    {
+        $this->setValue('vnc_connection', $vnc);
         return $this;
     }
 

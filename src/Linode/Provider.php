@@ -89,6 +89,7 @@ class Provider extends Category implements ProviderInterface
         $server = $this->findServer((int)$params->instance_id);
 
         return ConnectionResult::create()
+            ->setType(ConnectionResult::TYPE_SSH)
             ->setCommand(sprintf('ssh root@%s', Arr::first($server->ipv4)));
     }
 
