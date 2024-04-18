@@ -41,7 +41,7 @@ class Provider extends Category implements ProviderInterface
         return AboutData::create()
             ->setName('Virtuozzo Hybrid Server 7')
             ->setDescription('Deploy and manage Virtuozzo Hybrid Server 7 virtual servers')
-            ->setLogoUrl('https://api.upmind.io/images/logos/provision/virtuozzo-logo@2x.png');
+            ->setLogoUrl('https://api.upmind.io/images/logos/provision/virtuozzo-logo.png');
     }
 
     /**
