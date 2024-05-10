@@ -184,15 +184,15 @@ class ApiClient
         }
 
         return [
-            'instance_id' => (string)$vm['identifier'] ?? 'Unknown',
+            'instance_id' => (string) ($vm['identifier'] ?? 'Unknown'),
             'state' => $this->getState($vm),
             'label' => $vm['label'] ?? 'Unknown',
             'hostname' => $vm['hostname'] ?? 'Unknown',
             'ip_address' => $ipAddress,
             'image' => $vm['template_label'] ?? 'Unknown',
-            'memory_mb' => (int)$vm['memory'] ?? 0,
-            'cpu_cores' => (int)$vm['cpus'] ?? 0,
-            'disk_mb' => (int)$primaryDisk['disk_size'] * 1024 ?? 0,
+            'memory_mb' => (int) ($vm['memory'] ?? 0),
+            'cpu_cores' => (int) ($vm['cpus'] ?? 0),
+            'disk_mb' => (isset($primaryDisk['disk_size']) ? ((int) $primaryDisk['disk_size']) : 0) * 1024,
             'location' => $location ?? 'Unknown',
             'virtualization_type' => $vm['hypervisor_type'],
             'created_at' => isset($vm['created_at'])
