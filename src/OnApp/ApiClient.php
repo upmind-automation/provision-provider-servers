@@ -10,13 +10,9 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Throwable;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
-use Upmind\ProvisionBase\Helper;
 use Upmind\ProvisionProviders\Servers\Data\CreateParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\OnApp\Data\Configuration;
@@ -45,6 +41,10 @@ class ApiClient
         ]);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function makeRequest(
         string  $command,
         ?array  $params = null,
@@ -73,7 +73,7 @@ class ApiClient
 
             return $this->parseResponseData($result);
         } catch (Throwable $e) {
-            throw $this->handleException($e);
+            $this->handleException($e);
         }
     }
 
@@ -93,6 +93,9 @@ class ApiClient
 
     /**
      * @return no-return
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     private function handleException(Throwable $e): void
     {
@@ -345,8 +348,7 @@ class ApiClient
 
     public function listTemplates(): array
     {
-        $response = $this->makeRequest("/templates/system.json");
-        return $response;
+        return $this->makeRequest("/templates/system.json");
     }
 
     public function findTemplate($templateName): array
@@ -386,8 +388,7 @@ class ApiClient
 
     public function listLocations(): array
     {
-        $response = $this->makeRequest("/settings/location_groups.json");
-        return $response;
+        return $this->makeRequest("/settings/location_groups.json");
     }
 
     public function findLocation($locationName): array
