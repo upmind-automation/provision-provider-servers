@@ -44,10 +44,12 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function create(CreateParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
     }
 
     /**
@@ -70,26 +72,32 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function resize(ResizeParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
     }
 
     /**
@@ -102,34 +110,74 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function reboot(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function shutdown(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function powerOn(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
+    }
+
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
+    public function suspend(ServerIdentifierParams $params): ServerInfoResult
+    {
+        $this->errorResult('Not implemented');
+    }
+
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
+    public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
+    {
+        $this->errorResult('Not implemented');
+    }
+
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
+    public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
+    {
+        $this->errorResult('Not implemented');
+    }
+
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
+    public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
+    {
+        $this->errorResult('Not implemented');
     }
 
     /**
