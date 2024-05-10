@@ -7,7 +7,7 @@ namespace Upmind\ProvisionProviders\Servers\SolusVM;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Promise\Promise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\Utils as PromiseUtils;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Arr;
@@ -54,7 +54,7 @@ class ApiClient
 
     /**
      * @param string|int|null $nodeGroupId
-     * @return string|int Server ID
+     * @return string Server ID
      */
     public function createServer(
         string $virtualizationType,
@@ -111,9 +111,6 @@ class ApiClient
         ]);
     }
 
-    /**
-     * @param string|int $serverId
-     */
     public function changeRootPassword(string $serverId, string $password): void
     {
         $this->apiCall('vserver-rootpassword', [
@@ -122,33 +119,21 @@ class ApiClient
         ]);
     }
 
-    /**
-     * @param string|int $serverId
-     */
     public function bootServer(string $serverId): void
     {
         $this->apiCall('vserver-boot', ['vserverid' => $serverId]);
     }
 
-    /**
-     * @param string|int $serverId
-     */
     public function rebootServer(string $serverId): void
     {
         $this->apiCall('vserver-reboot', ['vserverid' => $serverId]);
     }
 
-    /**
-     * @param string|int $serverId
-     */
     public function shutdownServer(string $serverId): void
     {
         $this->apiCall('vserver-shutdown', ['vserverid' => $serverId]);
     }
 
-    /**
-     * @param string|int $serverId
-     */
     public function terminateServer(string $serverId): void
     {
         $this->apiCall('vserver-terminate', ['vserverid' => $serverId, 'deleteclient' => false]);
@@ -194,7 +179,7 @@ class ApiClient
             $types = Configuration::VIRTUALIZATION_TYPES;
         }
 
-        $promises = array_map(function (string $type): Promise {
+        $promises = array_map(function (string $type): PromiseInterface {
             return $this->apiPromise('listtemplates', ['type' => $type, 'listpipefriendly' => 1]);
         }, $types);
 
@@ -221,6 +206,8 @@ class ApiClient
 
     /**
      * Get a list of plan objects for the given virtualization type.
+     *
+     * @throws \Throwable
      */
     public function listPlans(string $type): array
     {
@@ -240,7 +227,7 @@ class ApiClient
     /**
      * Get a map of all node groups as id => name.
      *
-     * @return array<int,string>
+     * @return array<string,string>|array<int,string>
      */
     public function listNodeGroups(): array
     {
@@ -303,9 +290,10 @@ class ApiClient
      * Make an asynchronous API call to the SolusVM Admin API, returning a promise
      * that will resolve to the response data.
      *
-     * @return Promise<mixed[]>
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
-    public function apiPromise(string $action, array $params = []): Promise
+    public function apiPromise(string $action, array $params = []): PromiseInterface
     {
         $params = array_merge($params, [
             'id' => $this->configuration->api_id,
@@ -323,7 +311,7 @@ class ApiClient
 
             return $responseData;
         })->otherwise(function (Throwable $e) {
-            throw $this->handleException($e);
+            $this->handleException($e);
         });
     }
 
@@ -363,7 +351,8 @@ class ApiClient
 
     /**
      * @return no-return
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function handleException(Throwable $e): void
     {
