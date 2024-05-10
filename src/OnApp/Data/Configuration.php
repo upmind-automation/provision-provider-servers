@@ -11,7 +11,7 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * OnApp API credentials.
  *
  * @property-read string $hostname Hostname
- * @property-read string username Username
+ * @property-read string $username Username
  * @property-read string $password Password
  * @property-read int|null $timeout API request timeout
  */

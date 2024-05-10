@@ -8,7 +8,6 @@ use GuzzleHttp\Exception\ClientException;
 use Throwable;
 use Upmind\ProvisionBase\Provider\Contract\ProviderInterface;
 use Upmind\ProvisionBase\Provider\DataSet\AboutData;
-use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
 use Upmind\ProvisionProviders\Servers\Category;
 use Upmind\ProvisionProviders\Servers\Data\ChangeRootPasswordParams;
 use Upmind\ProvisionProviders\Servers\Data\CreateParams;
@@ -76,6 +75,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
@@ -83,7 +85,7 @@ class Provider extends Category implements ProviderInterface
             $info = $this->getServerInfoResult($params->instance_id);
 
             if (!$info->ip_address) {
-                throw $this->errorResult('IP address not found');
+                $this->errorResult('IP address not found');
             }
 
             $password = $this->api()->getPassword($params->instance_id);
@@ -114,14 +116,17 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function resize(ResizeParams $params): ServerInfoResult
     {
         try {
             $info = $this->getServerInfoResult($params->instance_id);
 
-            if ($info->state == 'On') {
-                throw $this->errorResult('Resize not available while server is running');
+            if ($info->state === 'On') {
+                $this->errorResult('Resize not available while server is running');
             }
 
             $this->api()->resize($params->instance_id, $params);
@@ -134,6 +139,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
@@ -148,6 +156,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reboot(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -162,6 +173,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function shutdown(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -182,13 +196,16 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function powerOn(ServerIdentifierParams $params): ServerInfoResult
     {
         try {
             $info = $this->getServerInfoResult($params->instance_id);
 
-            if ($info->state == 'On') {
+            if ($info->state === 'On') {
                 return $info->setMessage('Virtual server already on');
             }
 
@@ -202,41 +219,52 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function suspend(ServerIdentifierParams $params): ServerInfoResult
     {
-        return $this->shutdown($params)
-            ->setSuspended(true);
+        return $this->shutdown($params)->setSuspended(true);
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
     {
-        return $this->powerOn($params)
-            ->setSuspended(false);
+        return $this->powerOn($params)->setSuspended(false);
     }
 
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
