@@ -7,15 +7,14 @@ namespace Upmind\ProvisionProviders\Servers\Linode;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
-use Linode\Entity\Image;
-use Linode\Entity\Linode\Disk;
-use Linode\Entity\LinodeType;
-use Linode\Entity\Region;
 use Linode\Exception\Error;
 use Linode\Exception\LinodeException;
-use Linode\Internal\Linode\DiskRepository;
+use Linode\Images\Image;
 use Linode\LinodeClient;
+use Linode\LinodeInstances\Disk;
 use Linode\LinodeInstances\Linode;
+use Linode\LinodeTypes\LinodeType;
+use Linode\Regions\Region;
 use Throwable;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
 use Upmind\ProvisionBase\Helper;
@@ -40,7 +39,7 @@ class Provider extends Category implements ProviderInterface
     protected $configuration;
 
     /**
-     * @var LinodeClient
+     * @var LinodeClient|null
      */
     protected $client;
 
@@ -104,7 +103,7 @@ class Provider extends Category implements ProviderInterface
         $image = $this->findImage($params->image);
 
         try {
-            $this->api()->linodes()->rebuild((int)$params->instance_id, [
+            $this->api()->linodes()->rebuildLinodeInstance((int)$params->instance_id, [
                 'image' => $image->id,
                 'root_pass' => $params->root_password ?: Helper::generatePassword(),
             ]);
@@ -129,7 +128,8 @@ class Provider extends Category implements ProviderInterface
         }
 
         try {
-            $this->api()->linodes()->resize((int)$params->instance_id, $size->id);
+            // The type is now passed as a body parameter to the API resize endpoint.
+            $this->api()->linodes()->resizeLinodeInstance((int)$params->instance_id, ['type' => $size->id]);
         } catch (Throwable $e) {
             $this->handleException($e, 'Resize server');
         }
@@ -145,8 +145,8 @@ class Provider extends Category implements ProviderInterface
         $server = $this->findServer((int)$params->instance_id);
 
         try {
-            /** @var Disk $disk */
-            $disk = Arr::first($server->disks->findAll(), function (Disk $disk) {
+            /** @var \Linode\LinodeInstances\Disk|null $disk */
+            $disk = Arr::first($server->linodeDisks->findAll(), function (Disk $disk) {
                 return $disk->filesystem !== Disk::FILESYSTEM_SWAP;
             });
 
@@ -158,7 +158,7 @@ class Provider extends Category implements ProviderInterface
         }
 
         try {
-            $server->disks->resetPassword($disk->id, $params->root_password);
+            $server->linodeDisks->resetDiskPassword($disk->id, $params->root_password);
         } catch (Throwable $e) {
             $this->handleException($e, 'Update root password');
         }
@@ -172,7 +172,7 @@ class Provider extends Category implements ProviderInterface
     public function reboot(ServerIdentifierParams $params): ServerInfoResult
     {
         try {
-            $this->api()->linodes()->reboot((int)$params->instance_id);
+            $this->api()->linodes()->rebootLinodeInstance((int)$params->instance_id);
         } catch (Throwable $e) {
             $this->handleException($e, 'Reboot server');
         }
@@ -186,7 +186,7 @@ class Provider extends Category implements ProviderInterface
     public function shutdown(ServerIdentifierParams $params): ServerInfoResult
     {
         try {
-            $this->api()->linodes()->shutdown((int)$params->instance_id);
+            $this->api()->linodes()->shutdownLinodeInstance((int)$params->instance_id);
         } catch (Throwable $e) {
             $this->handleException($e, 'Shutdown server');
         }
@@ -200,7 +200,7 @@ class Provider extends Category implements ProviderInterface
     public function powerOn(ServerIdentifierParams $params): ServerInfoResult
     {
         try {
-            $this->api()->linodes()->boot((int)$params->instance_id);
+            $this->api()->linodes()->bootLinodeInstance((int)$params->instance_id);
         } catch (Throwable $e) {
             if (!preg_match('/Linode \d+ already booted/', $e->getMessage())) {
                 $this->handleException($e, 'Boot server');
@@ -291,7 +291,10 @@ class Provider extends Category implements ProviderInterface
     protected function findServer(int $serverId): Linode
     {
         try {
-            return $this->api()->linodes()->find($serverId);
+            /** @var \Linode\LinodeInstances\Linode $linode */
+            $linode = $this->api()->linodes()->find($serverId);
+
+            return $linode;
         } catch (Throwable $e) {
             $this->handleException($e, 'Get server info');
         }
@@ -306,7 +309,10 @@ class Provider extends Category implements ProviderInterface
             if (preg_match('#[a-z]+/[a-z0-9\-\.]+#', $name)) {
                 // name appears to be an image id
                 try {
-                    return $this->api()->images()->find($name);
+                    /** @var \Linode\Images\Image $image */
+                    $image = $this->api()->images()->find($name);
+
+                    return $image;
                 } catch (LinodeException $e) {
                     if ($e->getCode() !== 404) {
                         throw $e;
@@ -338,7 +344,10 @@ class Provider extends Category implements ProviderInterface
             if (preg_match('/^[a-z0-9\-]+$/', $name)) {
                 // name appears to be a type id
                 try {
-                    return $this->api()->linodeTypes()->find($name);
+                    /** @var \Linode\LinodeTypes\LinodeType $linodeType */
+                    $linodeType = $this->api()->linodeTypes()->find($name);
+
+                    return $linodeType;
                 } catch (LinodeException $e) {
                     if ($e->getCode() !== 404) {
                         throw $e;
@@ -368,7 +377,10 @@ class Provider extends Category implements ProviderInterface
     {
         try {
             try {
-                return $this->api()->regions()->find($id);
+                /** @var \Linode\Regions\Region $region */
+                $region = $this->api()->regions()->find($id);
+
+                return $region;
             } catch (LinodeException $e) {
                 if ($e->getCode() !== 404) {
                     throw $e;
@@ -400,8 +412,8 @@ class Provider extends Category implements ProviderInterface
             $data['error_code'] = $e->getCode();
             $data['errors'] = array_map(function (Error $error) {
                 return [
-                    'field' => $error->getField(),
-                    'reason' => $error->getReason(),
+                    'field' => $error->field,
+                    'reason' => $error->reason,
                 ];
             }, $e->getErrors());
 
