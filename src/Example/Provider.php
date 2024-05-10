@@ -102,10 +102,12 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Not implemented');
+        $this->errorResult('Not implemented');
     }
 
     /**
