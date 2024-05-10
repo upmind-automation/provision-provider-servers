@@ -261,39 +261,37 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @return no-return
-     * @throws ProvisionFunctionError
-     * @throws Throwable
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function handleException(Throwable $e): void
     {
-        if ($e instanceof ClientException) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                $reason = $response->getReasonPhrase();
-                $responseBody = $response->getBody()->__toString();
-                $responseData = json_decode($responseBody, true);
+        if (($e instanceof ClientException) && $e->hasResponse()) {
+            $response = $e->getResponse();
+            $reason = $response->getReasonPhrase();
+            $responseBody = $response->getBody()->__toString();
+            $responseData = json_decode($responseBody, true);
 
-                $messages = [];
-                $errors = $responseData['errors'];
-                foreach ($errors as $key => $value) {
-                    if (is_array($value)) {
-                        $messages[] = $key . ': ' . implode(', ', $value);
-                    } else {
-                        $messages[] = $value;
-                    }
+            $messages = [];
+            $errors = $responseData['errors'];
+            foreach ($errors as $key => $value) {
+                if (is_array($value)) {
+                    $messages[] = $key . ': ' . implode(', ', $value);
+                } else {
+                    $messages[] = $value;
                 }
-
-                if ($messages) {
-                    $errorMessage = implode(', ', $messages);
-                }
-
-                throw $this->errorResult(
-                    sprintf('Provider API error: %s', $errorMessage ?? $reason ?? null),
-                    [],
-                    ['response_data' => $responseData ?? null],
-                    $e
-                );
             }
+
+            if ($messages) {
+                $errorMessage = implode(', ', $messages);
+            }
+
+            $this->errorResult(
+                sprintf('Provider API error: %s', $errorMessage ?? $reason ?? null),
+                [],
+                ['response_data' => $responseData ?? null],
+                $e
+            );
         }
 
         throw $e;
