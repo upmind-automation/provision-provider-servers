@@ -12,14 +12,14 @@ use Throwable;
 
 class SocketClient
 {
-    /** @var resource */
+    /** @var resource|null */
     protected $client;
 
     protected string $host;
 
     protected int $port;
 
-    /** @var LoggerInterface */
+    /** @var LoggerInterface|null */
     protected $logger;
 
     /** @var boolean $logging */
@@ -99,10 +99,7 @@ class SocketClient
     }
 
     /**
-     * @param int $length
-     *
-     * @return SimpleXMLElement
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function request(string $xml): SimpleXMLElement
     {
@@ -248,8 +245,7 @@ class SocketClient
     }
 
     /**
-     * @return void
-     * @throws \ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function close(): void
     {
