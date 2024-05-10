@@ -18,7 +18,6 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * @property-read string|null $default_virtualization_type One of: openvz, xen, xen hvm, kvm
  * @property-read bool|null $single_server_owner Whether all servers should be created under a single username
  * @property-read string|null $server_owner_username Username to own new servers if `single_server_owner` is true
- * @property-read bool|null $debug Whether or not to log API requests and responses
  */
 class Configuration extends DataSet
 {
@@ -53,7 +52,6 @@ class Configuration extends DataSet
             'default_virtualization_type' => ['nullable', 'in:' . implode(',', self::VIRTUALIZATION_TYPES)],
             'single_server_owner' => ['nullable', 'boolean'],
             'server_owner_username' => ['required_if:single_server_owner,1', 'nullable', 'string'],
-            'debug' => ['nullable', 'boolean'],
         ]);
     }
 }

@@ -138,7 +138,7 @@ class Provider extends Category implements ProviderInterface
     protected function client(): Client
     {
         return $this->client ??= new Client([
-            'handler' => $this->getGuzzleHandlerStack(boolval($this->configuration->debug)),
+            'handler' => $this->getGuzzleHandlerStack(),
             'base_uri' => 'https://example.com/api/v1/',
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->configuration->api_token,

@@ -397,7 +397,7 @@ class Provider extends Category implements ProviderInterface
             return $this->client;
         }
 
-        $client = new Client(['handler' => $this->getGuzzleHandlerStack(!!$this->configuration->debug)]);
+        $client = new Client(['handler' => $this->getGuzzleHandlerStack()]);
 
         return $this->client = new LinodeClient($this->configuration->access_token, $client);
     }

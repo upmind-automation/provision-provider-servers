@@ -32,7 +32,7 @@ class ApiClient
     {
         $this->configuration = $configuration;
 
-        $this->client = new SocketClient($this->configuration->hostname, 4433, boolval($this->configuration->debug));
+        $this->client = new SocketClient($this->configuration->hostname, 4433);
         $this->client->setPsrLogger($logger);
     }
 

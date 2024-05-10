@@ -11,7 +11,6 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * Example API credentials.
  *
  * @property-read string $api_token API token
- * @property-read bool $debug Whether or not to log API requests and responses
  */
 class Configuration extends DataSet
 {
@@ -19,7 +18,6 @@ class Configuration extends DataSet
     {
         return new Rules([
             'api_token' => ['required', 'string'],
-            'debug' => ['boolean'],
         ]);
     }
 }

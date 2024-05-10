@@ -22,14 +22,10 @@ class SocketClient
     /** @var LoggerInterface|null */
     protected $logger;
 
-    /** @var boolean $logging */
-    protected $logging;
-
-    public function __construct(string $host, int $port, bool $debug)
+    public function __construct(string $host, int $port)
     {
         $this->host = $host;
         $this->port = $port;
-        $this->logging = $debug;
     }
 
     /**
@@ -42,7 +38,7 @@ class SocketClient
 
     protected function writeLog(string $text, string $action)
     {
-        if ($this->logging && isset($this->logger)) {
+        if (isset($this->logger)) {
             $this->logger->debug(sprintf("Virtuozzo [%s]:\n %s", $action, $this->formatLog($text)));
         }
     }

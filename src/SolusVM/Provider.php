@@ -437,7 +437,7 @@ class Provider extends Category implements ProviderInterface
     {
         return $this->apiClient ??= new ApiClient(
             $this->configuration,
-            $this->getGuzzleHandlerStack(!!$this->configuration->debug)
+            $this->getGuzzleHandlerStack()
         );
     }
 }
