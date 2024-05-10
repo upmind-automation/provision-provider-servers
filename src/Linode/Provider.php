@@ -356,7 +356,7 @@ class Provider extends Category implements ProviderInterface
             }
 
             // try and match with a type label
-            // filtering by label doesnt work for some reason so we need to loop over all types
+            // filtering by label doesn't work for some reason so we need to loop over all types
             /** @var LinodeType $type */
             foreach ($this->api()->linodeTypes()->findAll() as $type) {
                 if ($type->label === $name) {

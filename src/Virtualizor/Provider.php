@@ -158,6 +158,8 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function resize(ResizeParams $params): ServerInfoResult
     {
@@ -172,7 +174,7 @@ class Provider extends Category implements ProviderInterface
         $info = $this->getServerInfoResult($params->instance_id);
 
         if ($info->state === 'On' && !$params->resize_running) {
-            throw $this->errorResult('Resize not available while server is running');
+            $this->errorResult('Resize not available while server is running');
         }
 
         $plan = $this->api()->getPlan($planId, $planName, $info->virtualization_type);
@@ -275,18 +277,22 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**

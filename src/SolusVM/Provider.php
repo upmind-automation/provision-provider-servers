@@ -45,6 +45,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function create(CreateParams $params): ServerInfoResult
     {
@@ -131,13 +134,16 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function resize(ResizeParams $params): ServerInfoResult
     {
         $info = $this->getServerInfoResult($params->instance_id);
 
         if (!$params->resize_running && $info->state === 'online') {
-            throw $this->errorResult('Resize not available while server is running');
+            $this->errorResult('Resize not available while server is running');
         }
 
         $plan = $this->findPlan($info->virtualization_type, $params->size);
@@ -229,18 +235,22 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
@@ -290,15 +300,18 @@ class Provider extends Category implements ProviderInterface
      * Find plan by name or id.
      *
      * @param string $virtualizationType
-     * @param string $plan Plan name or id
+     * @param string|null $plan Plan name or id
      * @param bool $orFail
      *
      * @return mixed[]|null Plan data
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function findPlan(string $virtualizationType, ?string $plan, bool $orFail = true): ?array
     {
         if (empty($plan)) {
-            throw $this->errorResult('Size parameter is required');
+            $this->errorResult('Size parameter is required');
         }
 
         $plans = $this->cache['plans'][$virtualizationType] ??= $this->api()->listPlans($virtualizationType);
@@ -315,12 +328,16 @@ class Provider extends Category implements ProviderInterface
         }
 
         if ($orFail) {
-            throw $this->errorResult('Server size/plan not found');
+            $this->errorResult('Server size/plan not found');
         }
 
         return null;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     protected function findPlanBySpecs(
         string $virtualizationType,
         string $cpus,
@@ -341,12 +358,15 @@ class Provider extends Category implements ProviderInterface
         }
 
         if ($orFail) {
-            throw $this->errorResult('Server size/plan not found');
+            $this->errorResult('Server size/plan not found');
         }
 
         return null;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     protected function findTemplateId(?string $virtualizationType, string $template, bool $orFail = true): ?string
     {
         $templates = $this->cache['templates'][$virtualizationType]
@@ -363,12 +383,15 @@ class Provider extends Category implements ProviderInterface
         }
 
         if ($orFail) {
-            throw $this->errorResult('Server image/template not found');
+            $this->errorResult('Server image/template not found');
         }
 
         return null;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     protected function findTemplateLabel(?string $virtualizationType, string $template, bool $orFail = true): ?string
     {
         $templates = $this->cache['templates'][$virtualizationType]
@@ -385,12 +408,15 @@ class Provider extends Category implements ProviderInterface
         }
 
         if ($orFail) {
-            throw $this->errorResult('Server image/template not found');
+            $this->errorResult('Server image/template not found');
         }
 
         return null;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     protected function findNodeGroupId($nodeGroup, bool $orFail = true): ?int
     {
         $nodeGroups = $this->cache['node_groups'] ??= $this->api()->listNodeGroups();
@@ -406,12 +432,15 @@ class Provider extends Category implements ProviderInterface
         }
 
         if ($orFail) {
-            throw $this->errorResult('Node group not found');
+            $this->errorResult('Node group not found');
         }
 
         return null;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     protected function findNodeGroupName($nodeGroup, bool $orFail = true): ?string
     {
         $nodeGroups = $this->cache['node_groups'] ??= $this->api()->listNodeGroups();
@@ -427,7 +456,7 @@ class Provider extends Category implements ProviderInterface
         }
 
         if ($orFail) {
-            throw $this->errorResult('Node group not found');
+            $this->errorResult('Node group not found');
         }
 
         return null;
