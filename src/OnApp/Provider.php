@@ -286,8 +286,15 @@ class Provider extends Category implements ProviderInterface
                 $errorMessage = implode(', ', $messages);
             }
 
+            $errorResultMessage = $errorMessage ?? null;
+
+            // If errorMessage was not set, and error result message is still null, set the reason.
+            if ($errorResultMessage === null) {
+                $errorResultMessage = $reason;
+            }
+
             $this->errorResult(
-                sprintf('Provider API error: %s', $errorMessage ?? $reason ?? null),
+                sprintf('Provider API error: %s', $errorResultMessage),
                 [],
                 ['response_data' => $responseData ?? null],
                 $e
