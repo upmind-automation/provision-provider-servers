@@ -38,14 +38,12 @@ class ApiClient
     }
 
     /**
-     * @param string $virtualizationType
      * @param int|string $planId
      * @param int|string $osId
      * @param int|string|null $serverGroupId
      * @param int|string|null $serverId
-     * @param string $hostname
-     * @param string $email
-     * @param string|null $password
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function createVirtualServer(
         string $virtualizationType,
@@ -75,7 +73,7 @@ class ApiClient
         ]);
 
         if (empty($data['done'])) {
-            throw $this->throwError('Virtual server creation unsuccessful', [
+            $this->throwError('Virtual server creation unsuccessful', [
                 'virt' => $virtualizationType,
                 'node_select' => 0,
                 'slave_server' => $serverId,
@@ -95,6 +93,8 @@ class ApiClient
     /**
      * @param int|string $vpsId
      * @param string $action start/stop/restart/poweroff
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function runVirtualServerAction($vpsId, string $action): array
     {
@@ -104,7 +104,7 @@ class ApiClient
         ]);
 
         if (empty($data['done'])) {
-            throw $this->throwError('Virtual server shutdown unsuccessful', [
+            $this->throwError('Virtual server shutdown unsuccessful', [
                 'vpsid' => $vpsId,
                 'action' => $action,
                 'response_data' => $this->condenseResponseData($data),
@@ -116,13 +116,15 @@ class ApiClient
 
     /**
      * @param int|string $vpsId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getVirtualServer($vpsId): array
     {
         $data = $this->apiCall('vs', [], ['vpsid' => $vpsId]);
 
         if (empty($data['vs'][$vpsId])) {
-            throw $this->throwError('Virtual server not found', [
+            $this->throwError('Virtual server not found', [
                 'vpsid' => $vpsId,
                 'response_data' => $this->condenseResponseData($data),
             ]);
@@ -133,13 +135,15 @@ class ApiClient
 
     /**
      * @param int|string $vpsId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getVirtualServerStatus($vpsId): array
     {
         $data = $this->apiCall('vs_status', ['vs_status' => [$vpsId]]);
 
         if (empty($data['vs'][$vpsId])) {
-            throw $this->throwError('Virtual server not found', [
+            $this->throwError('Virtual server not found', [
                 'vpsid' => $vpsId,
                 'response_data' => $this->condenseResponseData($data),
             ]);
@@ -150,6 +154,8 @@ class ApiClient
 
     /**
      * @param int|string $vpsId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function changeVirtualServerRootPass($vpsId, string $rootPassword): array
     {
@@ -164,7 +170,7 @@ class ApiClient
         ]);
 
         if (empty($data['done']['change_pass_msg']) && empty($data['done']['done'])) { // this is insane <:'(
-            throw $this->throwError('Virtual server password change unsuccessful', [
+            $this->throwError('Virtual server password change unsuccessful', [
                 'vpsid' => $vpsId,
                 'response_data' => $this->condenseResponseData($data),
             ]);
@@ -176,6 +182,8 @@ class ApiClient
     /**
      * @param int|string $vpsId
      * @param int|string $planId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function changeVirtualServerPlan($vpsId, $planId): array
     {
@@ -185,7 +193,7 @@ class ApiClient
         ]);
 
         if (empty($data['done'])) {
-            throw $this->throwError('Virtual server plan change unsuccessful', [
+            $this->throwError('Virtual server plan change unsuccessful', [
                 'vpsid' => $vpsId,
                 'response_data' => $this->condenseResponseData($data),
             ]);
@@ -196,13 +204,15 @@ class ApiClient
 
     /**
      * @param int|string $vpsId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getAllVirtualServerInfo($vpsId): array
     {
         $data = $this->apiCall('editvs', ['vpsid' => $vpsId]);
 
         if (empty($data['vps'])) {
-            throw $this->throwError('Virtual server not found', [
+            $this->throwError('Virtual server not found', [
                 'vpsid' => $vpsId,
                 'response_data' => $this->condenseResponseData($data),
             ]);
@@ -223,8 +233,8 @@ class ApiClient
 
     /**
      * @param int|string|null $planId
-     * @param string|null $planName
-     * @param string|null $virtualizationType
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getPlan(
         $planId,
@@ -233,7 +243,7 @@ class ApiClient
         bool $orFail = true
     ): ?array {
         if (empty($planId) && empty($planName)) {
-            throw $this->throwError('Size parameter is required');
+            $this->throwError('Size parameter is required');
         }
 
         $query = ['page' => 1, 'reslen' => 100];
@@ -270,7 +280,7 @@ class ApiClient
             if ($virtualizationType) {
                 $error = ucfirst($virtualizationType) . ' ' . lcfirst($error);
             }
-            throw $this->throwError($error, [
+            $this->throwError($error, [
                 'plid' => $planId,
                 'planname' => $planName,
                 'virt' => $virtualizationType,
@@ -282,7 +292,8 @@ class ApiClient
 
     /**
      * @param int|string|null $groupId
-     * @param string|null $groupName
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getServerGroup(
         $groupId,
@@ -315,7 +326,7 @@ class ApiClient
         }
 
         if ($orFail) {
-            throw $this->throwError('Server group not found', [
+            $this->throwError('Server group not found', [
                 'sgid' => $groupId,
                 'sg_name' => $groupName,
             ]);
@@ -326,8 +337,8 @@ class ApiClient
 
     /**
      * @param int|string|null $serverId
-     * @param string|null $serverName
-     * @param string|null $location
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getServer(
         $serverId,
@@ -363,7 +374,7 @@ class ApiClient
         }
 
         if ($orFail) {
-            throw $this->throwError('Host server not found', [
+            $this->throwError('Host server not found', [
                 'serid' => $serverId,
                 'servername' => $serverName,
                 'location' => $location,
@@ -375,7 +386,8 @@ class ApiClient
 
     /**
      * @param int|string|null $osId
-     * @param string|null $osName
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getOsTemplate($osId, ?string $osName = null): array
     {
@@ -397,7 +409,7 @@ class ApiClient
             }
         }
 
-        throw $this->throwError('OS template not found', [
+        $this->throwError('OS template not found', [
             'osid' => $osId,
             'name' => $osName,
         ]);
@@ -407,7 +419,8 @@ class ApiClient
      * @param int|string $vpsId
      * @param int|string $osId
      * @param int|string|null $serverId
-     * @param null|string $password
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function rebuildVirtualServer($vpsId, $osId, $serverId = null, ?string $password = null): array
     {
@@ -432,7 +445,7 @@ class ApiClient
         ]);
 
         if (empty($data['done'])) {
-            throw $this->throwError('Virtual server rebuild unsuccessful', [
+            $this->throwError('Virtual server rebuild unsuccessful', [
                 'vpsid' => $vpsId,
                 'osid' => $osId,
                 'vps' => $data['vpses'][$vpsId],
@@ -445,13 +458,15 @@ class ApiClient
 
     /**
      * @param int|string $vpsId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function deleteVirtualServer($vpsId): array
     {
         $data = $this->apiCall('vs', ['delete' => $vpsId]);
 
         if (empty($data['done'])) {
-            throw $this->throwError('Virtual server delete unsuccessful', [
+            $this->throwError('Virtual server delete unsuccessful', [
                 'vpsid' => $vpsId,
                 'response_data' => $this->condenseResponseData($data),
             ]);
@@ -465,7 +480,9 @@ class ApiClient
      * @param mixed[] $query Query params
      * @param mixed[] $post POST body params
      *
-     * @return mixed[]
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Throwable
      */
     public function apiCall(string $act, array $query = [], array $post = []): array
     {
@@ -488,7 +505,7 @@ class ApiClient
                 $errorMessage = 'Provider API request timeout';
             }
 
-            throw $this->throwError($errorMessage, [], [], $e);
+            $this->throwError($errorMessage, [], [], $e);
         }
 
         $responseData = json_decode($response->getBody()->__toString(), true) ?? [];
@@ -499,7 +516,8 @@ class ApiClient
     }
 
     /**
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function checkResponse(Response $response, ?array $responseData = null): void
     {
@@ -527,23 +545,19 @@ class ApiClient
             if (!empty($responseData['error'])) {
                 $errors = implode(', ', Arr::wrap($responseData['error']));
 
-                if ($errorMessage) {
-                    $errorMessage .= ': ' . $errors;
-                } else {
-                    $errorMessage = ' - ' . $errors;
-                }
+                $errorMessage = ' - ' . $errors;
             }
         }
 
         if (!empty($errorMessage)) {
-            throw $this->throwError($errorMessage, [
+            $this->throwError($errorMessage, [
                 'http_code' => $response->getStatusCode(),
                 'response_data' => $this->condenseResponseData($responseData),
             ]);
         }
 
         if ($response->getStatusCode() !== 200) {
-            throw $this->throwError(sprintf('API %s Error', $response->getStatusCode()), [
+            $this->throwError(sprintf('API %s Error', $response->getStatusCode()), [
                 'http_code' => $response->getStatusCode(),
                 'response_data' => $this->condenseResponseData($responseData),
             ]);
@@ -593,7 +607,7 @@ class ApiClient
     /**
      * @return no-return
      *
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     protected function throwError(string $message, array $data = [], array $debug = [], ?Throwable $e = null): void
     {
