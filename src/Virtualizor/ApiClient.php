@@ -446,6 +446,40 @@ class ApiClient
     /**
      * @param int|string $vpsId
      */
+    public function suspendVirtualServer($vpsId): array
+    {
+        $data = $this->apiCall('vs', ['suspend' => $vpsId]);
+
+        if (empty($data['done'])) {
+            throw $this->throwError('Virtual server suspend unsuccessful', [
+                'vpsid' => $vpsId,
+                'response_data' => $this->condenseResponseData($data),
+            ]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param int|string $vpsId
+     */
+    public function unsuspendVirtualServer($vpsId): array
+    {
+        $data = $this->apiCall('vs', ['unsuspend' => $vpsId]);
+
+        if (empty($data['done'])) {
+            throw $this->throwError('Virtual server unsuspend unsuccessful', [
+                'vpsid' => $vpsId,
+                'response_data' => $this->condenseResponseData($data),
+            ]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param int|string $vpsId
+     */
     public function deleteVirtualServer($vpsId): array
     {
         $data = $this->apiCall('vs', ['delete' => $vpsId]);
