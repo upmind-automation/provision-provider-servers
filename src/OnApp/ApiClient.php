@@ -42,6 +42,7 @@ class ApiClient
     }
 
     /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -77,6 +78,9 @@ class ApiClient
         }
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     private function parseResponseData(string $response): array
     {
         $parsedResult = json_decode($response, true);
@@ -159,6 +163,11 @@ class ApiClient
             ->withData($errorData);
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function getServerInfo(string $serverId): ?array
     {
         $response = $this->makeRequest("/virtual_machines/{$serverId}.json");
@@ -222,6 +231,11 @@ class ApiClient
         return $state;
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function getPassword(string $serverId): ?string
     {
         $response = $this->makeRequest("/virtual_machines/{$serverId}.json");
@@ -230,6 +244,11 @@ class ApiClient
         return (string)$vm['initial_root_password'];
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function create(CreateParams $params): string
     {
         $locationId = $this->findLocation($params->location)['id'];
@@ -263,6 +282,11 @@ class ApiClient
         return $id;
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function changePassword(string $serverId, string $password): void
     {
         $body = [
@@ -274,6 +298,11 @@ class ApiClient
         $this->makeRequest("/virtual_machines/{$serverId}/reset_password.json", null, $body, 'POST');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function resize(string $serverId, ResizeParams $params): void
     {
         $primaryDisk = $this->getPrimaryDisk($serverId);
@@ -296,27 +325,52 @@ class ApiClient
         $this->makeRequest("/virtual_machines/{$serverId}/disks/{$primaryDisk['id']}.json", null, $body, 'PUT');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function getPrimaryDisk(string $serverId): array
     {
         $response = $this->makeRequest("/virtual_machines/{$serverId}/disks.json");
         return $response[0]['disk'];
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function reboot(string $serverId): void
     {
         $this->makeRequest("/virtual_machines/{$serverId}/reboot.json", null, null, 'POST');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function shutdown(string $serverId): void
     {
         $this->makeRequest("/virtual_machines/{$serverId}/shutdown.json", null, null, 'POST');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function start(string $serverId): void
     {
         $this->makeRequest("/virtual_machines/{$serverId}/startup.json", null, null, 'POST');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function destroy(string $serverId): void
     {
         $params = [
@@ -326,6 +380,11 @@ class ApiClient
         $this->makeRequest("/virtual_machines/{$serverId}.json", $params, null, 'DELETE');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function rebuildServer(string $serverId, string $image): void
     {
         $templateId = $this->findTemplate($image)['id'];
@@ -340,17 +399,32 @@ class ApiClient
         $this->makeRequest("/virtual_machines/{$serverId}/build.json", null, $body, 'POST');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function getTemplate(int $templateId): array
     {
         $response = $this->makeRequest("/templates/{$templateId}.json");
         return $response['image_template'];
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function listTemplates(): array
     {
         return $this->makeRequest("/templates/system.json");
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function findTemplate($templateName): array
     {
         if (is_numeric($templateName)) {
@@ -380,17 +454,32 @@ class ApiClient
         ]);
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function getLocation(int $locationId): array
     {
         $response = $this->makeRequest("/settings/location_groups/{$locationId}.json");
         return $response['location_group'];
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function listLocations(): array
     {
         return $this->makeRequest("/settings/location_groups.json");
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function findLocation($locationName): array
     {
         if (is_numeric($locationName)) {
@@ -410,6 +499,11 @@ class ApiClient
         ]);
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function getHypervisorLocation(int $hypervisor_id): ?string
     {
         $response = $this->makeRequest("/settings/hypervisors/{$hypervisor_id}.json");

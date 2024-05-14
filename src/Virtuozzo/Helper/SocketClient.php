@@ -70,6 +70,9 @@ class SocketClient
         return sprintf("tcp://%s:%s", $this->host, $this->port);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function connect(int $flags, int $timeout = 1800): void
     {
         if (
@@ -116,6 +119,9 @@ class SocketClient
         return $this->checkResponseErrors($resultXml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function checkResponseErrors(string $response): SimpleXMLElement
     {
         try {
@@ -162,6 +168,9 @@ class SocketClient
         return $result;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function checkAuth(string $response): void
     {
         try {
@@ -224,10 +233,7 @@ class SocketClient
     }
 
     /**
-     * @param string $content
-     *
-     * @return int
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function write(string $content): int
     {

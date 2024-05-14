@@ -93,6 +93,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getInfo(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -101,6 +104,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
@@ -124,6 +130,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
@@ -156,6 +165,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
@@ -170,6 +182,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reboot(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -182,6 +197,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function shutdown(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -199,6 +217,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function powerOn(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -216,6 +237,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function suspend(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -225,6 +249,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -255,6 +282,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
@@ -265,6 +295,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @param string|int $serverId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function getServerInfoResult($serverId): ServerInfoResult
     {
@@ -366,6 +399,7 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function findTemplateId(?string $virtualizationType, string $template, bool $orFail = true): ?string
     {
@@ -391,6 +425,7 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function findTemplateLabel(?string $virtualizationType, string $template, bool $orFail = true): ?string
     {
@@ -416,6 +451,7 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function findNodeGroupId($nodeGroup, bool $orFail = true): ?int
     {
@@ -440,6 +476,7 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function findNodeGroupName($nodeGroup, bool $orFail = true): ?string
     {

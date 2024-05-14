@@ -59,6 +59,9 @@ class ApiClient
         return (new XMLCommand())->login($username, $pass);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function getServerInfo(string $serverId): ?array
     {
         $info = new XMLCommand();
@@ -111,6 +114,9 @@ class ApiClient
         return $states[$state];
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function create(CreateParams $params): string
     {
         $create = new XMLCommand();
@@ -136,6 +142,9 @@ class ApiClient
         return (string)$response->data->vzpenvm->env->eid;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function installGuestTools(string $serverId): void
     {
         $create = new XMLCommand();
@@ -143,6 +152,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function getConsoleInfo(string $serverId): array
     {
         $create = new XMLCommand();
@@ -152,6 +164,9 @@ class ApiClient
         return json_decode(json_encode($response->data->vzpenvm->console_info), true);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function changePassword(string $serverId, string $password): void
     {
         $create = new XMLCommand();
@@ -197,6 +212,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function restart(string $serverId): void
     {
         $create = new XMLCommand();
@@ -206,6 +224,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function stop(string $serverId): void
     {
         $create = new XMLCommand();
@@ -215,6 +236,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function start(string $serverId): void
     {
         $create = new XMLCommand();
@@ -224,6 +248,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function destroy(string $serverId): void
     {
         $create = new XMLCommand();
@@ -233,6 +260,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function rebuildServer(string $serverId, string $image): void
     {
         $platform = $this->getGuestOSPlatform($image);

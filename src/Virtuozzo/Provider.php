@@ -26,7 +26,7 @@ use Upmind\ProvisionProviders\Servers\Virtuozzo\Data\Configuration;
 class Provider extends Category implements ProviderInterface
 {
     protected Configuration $configuration;
-    protected ApiClient $apiClient;
+    protected ApiClient|null $apiClient = null;
 
     public function __construct(Configuration $configuration)
     {
@@ -333,8 +333,8 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @return no-return
-     * @throws ProvisionFunctionError
-     * @throws Throwable
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function handleException(Throwable $e): void
     {

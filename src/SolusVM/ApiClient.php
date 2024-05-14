@@ -40,6 +40,9 @@ class ApiClient
 
     /**
      * @return string Customer username
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function createCustomer(string $email, ?string $password = null): string
     {
@@ -55,6 +58,9 @@ class ApiClient
     /**
      * @param string|int|null $nodeGroupId
      * @return string Server ID
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function createServer(
         string $virtualizationType,
@@ -91,6 +97,9 @@ class ApiClient
 
     /**
      * @param string|int $serverId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function changeServerPlan($serverId, string $planName): void
     {
@@ -102,6 +111,9 @@ class ApiClient
 
     /**
      * @param string|int $serverId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function rebuildServer($serverId, string $templateId): void
     {
@@ -111,6 +123,10 @@ class ApiClient
         ]);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function changeRootPassword(string $serverId, string $password): void
     {
         $this->apiCall('vserver-rootpassword', [
@@ -119,21 +135,37 @@ class ApiClient
         ]);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function bootServer(string $serverId): void
     {
         $this->apiCall('vserver-boot', ['vserverid' => $serverId]);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function rebootServer(string $serverId): void
     {
         $this->apiCall('vserver-reboot', ['vserverid' => $serverId]);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function shutdownServer(string $serverId): void
     {
         $this->apiCall('vserver-shutdown', ['vserverid' => $serverId]);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     public function terminateServer(string $serverId): void
     {
         $this->apiCall('vserver-terminate', ['vserverid' => $serverId, 'deleteclient' => false]);
@@ -143,6 +175,9 @@ class ApiClient
      * Get information about a server.
      *
      * @param string|int $serverId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getServerInfo($serverId): array
     {
@@ -158,6 +193,9 @@ class ApiClient
 
     /**
      * @param string|int $node Node id or name
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getNode($node): array
     {
@@ -170,6 +208,9 @@ class ApiClient
      * @param string|null $type Optionally, for a specific virtualization type
      *
      * @return array<string,string>
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function listTemplates(?string $type = null): array
     {
@@ -207,6 +248,7 @@ class ApiClient
     /**
      * Get a list of plan objects for the given virtualization type.
      *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
     public function listPlans(string $type): array
@@ -228,6 +270,9 @@ class ApiClient
      * Get a map of all node groups as id => name.
      *
      * @return array<string,string>|array<int,string>
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function listNodeGroups(): array
     {
@@ -248,6 +293,9 @@ class ApiClient
      * @param int $hours Number of hours for session to last
      *
      * @return mixed[] Session data
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      *
      * @link https://docs.solusvm.com/v1/api/admin/virtual-server-functions/Serial%2BConsole.html
      */
@@ -280,6 +328,9 @@ class ApiClient
 
     /**
      * Make an API call to the SolusVM Admin API and return the response data.
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function apiCall(string $action, array $params = []): array
     {
@@ -316,7 +367,7 @@ class ApiClient
     }
 
     /**
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     protected function assertApiResponseSuccess(Response $response, ?array $responseData = null): void
     {
@@ -351,6 +402,7 @@ class ApiClient
 
     /**
      * @return no-return
+     *
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */

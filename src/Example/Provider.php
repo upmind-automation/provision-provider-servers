@@ -24,7 +24,7 @@ use Upmind\ProvisionProviders\Servers\Example\Data\Configuration;
 class Provider extends Category implements ProviderInterface
 {
     protected Configuration $configuration;
-    protected Client $client;
+    protected Client|null $client = null;
 
     public function __construct(Configuration $configuration)
     {

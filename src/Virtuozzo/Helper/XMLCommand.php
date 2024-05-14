@@ -50,7 +50,7 @@ class XMLCommand
      * @param DOMElement $body
      * @param bool $target
      * @return string
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function build(DOMElement $body, bool $target = true): string
     {

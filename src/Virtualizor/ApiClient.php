@@ -43,7 +43,9 @@ class ApiClient
      * @param int|string|null $serverGroupId
      * @param int|string|null $serverId
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function createVirtualServer(
         string $virtualizationType,
@@ -94,7 +96,9 @@ class ApiClient
      * @param int|string $vpsId
      * @param string $action start/stop/restart/poweroff
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function runVirtualServerAction($vpsId, string $action): array
     {
@@ -205,7 +209,9 @@ class ApiClient
     /**
      * @param int|string $vpsId
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getAllVirtualServerInfo($vpsId): array
     {
@@ -338,7 +344,9 @@ class ApiClient
     /**
      * @param int|string|null $serverId
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getServer(
         $serverId,
@@ -387,7 +395,9 @@ class ApiClient
     /**
      * @param int|string|null $osId
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getOsTemplate($osId, ?string $osName = null): array
     {
@@ -420,7 +430,9 @@ class ApiClient
      * @param int|string $osId
      * @param int|string|null $serverId
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function rebuildVirtualServer($vpsId, $osId, $serverId = null, ?string $password = null): array
     {
@@ -459,7 +471,9 @@ class ApiClient
     /**
      * @param int|string $vpsId
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function deleteVirtualServer($vpsId): array
     {
@@ -480,8 +494,8 @@ class ApiClient
      * @param mixed[] $query Query params
      * @param mixed[] $post POST body params
      *
-     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
     public function apiCall(string $act, array $query = [], array $post = []): array

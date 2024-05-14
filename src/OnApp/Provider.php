@@ -22,7 +22,7 @@ use Upmind\ProvisionProviders\Servers\OnApp\Data\Configuration;
 class Provider extends Category implements ProviderInterface
 {
     protected Configuration $configuration;
-    protected ApiClient $apiClient;
+    protected ApiClient|null $apiClient = null;
 
     public function __construct(Configuration $configuration)
     {
@@ -42,6 +42,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function create(CreateParams $params): ServerInfoResult
     {
@@ -56,6 +60,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getInfo(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -66,6 +74,11 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     protected function getServerInfoResult($serverId): ServerInfoResult
     {
         $info = $this->api()->getServerInfo($serverId);
@@ -76,6 +89,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -102,6 +116,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
@@ -117,6 +135,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -140,6 +159,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -157,6 +177,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -174,6 +195,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -197,6 +219,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -220,6 +243,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -231,6 +255,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -263,6 +288,7 @@ class Provider extends Category implements ProviderInterface
     /**
      * @inheritDoc
      *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
@@ -289,6 +315,7 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @return no-return
+     *
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
