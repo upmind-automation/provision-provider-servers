@@ -2,6 +2,11 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v4.0.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.1) - 2024-05-16
+
+- Implement Virtualizor suspension and unsuspension
+- Fix Virtualizor API redirect response and error handling
+
 ## [v4.0.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.0) - 2024-04-15
 
 - Rename `getSshConnectionCommand()` to `getConnection()`
