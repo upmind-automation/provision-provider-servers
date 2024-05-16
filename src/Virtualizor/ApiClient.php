@@ -34,6 +34,7 @@ class ApiClient
             'verify' => !($configuration->ignore_ssl_errors ?? true),
             'connect_timeout' => 10,
             'timeout' => 60, // this API is SLOW!
+            'allow_redirects' => false,
         ]);
     }
 
@@ -537,7 +538,8 @@ class ApiClient
      */
     protected function checkResponse(Response $response, ?array $responseData = null): void
     {
-        $responseData ??= json_decode($response->getBody()->__toString(), true) ?? [];
+        $responseBody = $response->getBody()->__toString();
+        $responseData ??= json_decode($responseBody, true) ?? [];
 
         if (
             !empty($responseData['fatal_error_text'])
@@ -569,18 +571,22 @@ class ApiClient
             }
         }
 
+        $errorData = [
+            'http_code' => $response->getStatusCode(),
+            'response_data' => $this->condenseResponseData($responseData),
+        ];
+
+        if (empty($responseData)) {
+            unset($errorData['response_data']);
+            $errorData['response_body'] = Str::limit($responseBody, 1000);
+        }
+
         if (!empty($errorMessage)) {
-            throw $this->throwError($errorMessage, [
-                'http_code' => $response->getStatusCode(),
-                'response_data' => $this->condenseResponseData($responseData),
-            ]);
+            throw $this->throwError($errorMessage, $errorData);
         }
 
         if ($response->getStatusCode() !== 200) {
-            throw $this->throwError(sprintf('API %s Error', $response->getStatusCode()), [
-                'http_code' => $response->getStatusCode(),
-                'response_data' => $this->condenseResponseData($responseData),
-            ]);
+            throw $this->throwError(sprintf('API %s Error', $response->getStatusCode()), $errorData);
         }
     }
 
