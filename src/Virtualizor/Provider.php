@@ -260,7 +260,9 @@ class Provider extends Category implements ProviderInterface
      */
     public function suspend(ServerIdentifierParams $params): ServerInfoResult
     {
-        return $this->shutdown($params)
+        $this->api()->suspendVirtualServer($params->instance_id);
+
+        return $this->getServerInfoResult($params->instance_id)
             ->setSuspended(true);
     }
 
@@ -269,7 +271,9 @@ class Provider extends Category implements ProviderInterface
      */
     public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
     {
-        return $this->powerOn($params)
+        $this->api()->unsuspendVirtualServer($params->instance_id);
+
+        return $this->getServerInfoResult($params->instance_id)
             ->setSuspended(false);
     }
 
@@ -326,6 +330,7 @@ class Provider extends Category implements ProviderInterface
         return ServerInfoResult::create()
             ->setInstanceId($vps['vpsid'])
             ->setState(ApiClient::statusNumberToString($vps['stats']['status'] ?? null))
+            ->setSuspended(boolval($vps['suspended']))
             ->setLabel(sprintf('%s [%s]', $vps['hostname'], $vps['vps_name']))
             ->setHostname($vps['hostname'])
             ->setSize($plan['plan_name'] ?? 'Custom')
