@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace Upmind\ProvisionProviders\Servers\OnApp;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Exception\ClientException;
 use Throwable;
-use Illuminate\Support\Arr;
 use Upmind\ProvisionBase\Provider\Contract\ProviderInterface;
 use Upmind\ProvisionBase\Provider\DataSet\AboutData;
-use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
-use Upmind\ProvisionBase\Helper;
 use Upmind\ProvisionProviders\Servers\Category;
 use Upmind\ProvisionProviders\Servers\Data\ChangeRootPasswordParams;
 use Upmind\ProvisionProviders\Servers\Data\CreateParams;
@@ -27,7 +22,7 @@ use Upmind\ProvisionProviders\Servers\OnApp\Data\Configuration;
 class Provider extends Category implements ProviderInterface
 {
     protected Configuration $configuration;
-    protected ApiClient $apiClient;
+    protected ApiClient|null $apiClient = null;
 
     public function __construct(Configuration $configuration)
     {
@@ -47,6 +42,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function create(CreateParams $params): ServerInfoResult
     {
@@ -61,6 +60,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getInfo(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -71,6 +74,11 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     protected function getServerInfoResult($serverId): ServerInfoResult
     {
         $info = $this->api()->getServerInfo($serverId);
@@ -80,6 +88,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
@@ -87,7 +99,7 @@ class Provider extends Category implements ProviderInterface
             $info = $this->getServerInfoResult($params->instance_id);
 
             if (!$info->ip_address) {
-                throw $this->errorResult('IP address not found');
+                $this->errorResult('IP address not found');
             }
 
             $password = $this->api()->getPassword($params->instance_id);
@@ -104,6 +116,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
@@ -118,14 +134,18 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function resize(ResizeParams $params): ServerInfoResult
     {
         try {
             $info = $this->getServerInfoResult($params->instance_id);
 
-            if ($info->state == 'On') {
-                throw $this->errorResult('Resize not available while server is running');
+            if ($info->state === 'On') {
+                $this->errorResult('Resize not available while server is running');
             }
 
             $this->api()->resize($params->instance_id, $params);
@@ -138,6 +158,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
@@ -152,6 +176,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reboot(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -166,6 +194,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function shutdown(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -186,13 +218,17 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function powerOn(ServerIdentifierParams $params): ServerInfoResult
     {
         try {
             $info = $this->getServerInfoResult($params->instance_id);
 
-            if ($info->state == 'On') {
+            if ($info->state === 'On') {
                 return $info->setMessage('Virtual server already on');
             }
 
@@ -206,41 +242,55 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function suspend(ServerIdentifierParams $params): ServerInfoResult
     {
-        return $this->shutdown($params)
-            ->setSuspended(true);
+        return $this->shutdown($params)->setSuspended(true);
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
     {
-        return $this->powerOn($params)
-            ->setSuspended(false);
+        return $this->powerOn($params)->setSuspended(false);
     }
 
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
@@ -259,45 +309,51 @@ class Provider extends Category implements ProviderInterface
     {
         return $this->apiClient ??= new ApiClient(
             $this->configuration,
-            $this->getGuzzleHandlerStack(boolval($this->configuration->debug))
+            $this->getGuzzleHandlerStack()
         );
     }
 
     /**
      * @return no-return
-     * @throws ProvisionFunctionError
-     * @throws Throwable
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function handleException(Throwable $e): void
     {
-        if ($e instanceof ClientException) {
-            if ($e->hasResponse()) {
-                $response = $e->getResponse();
-                $reason = $response->getReasonPhrase();
-                $responseBody = $response->getBody()->__toString();
-                $responseData = json_decode($responseBody, true);
+        if (($e instanceof ClientException) && $e->hasResponse()) {
+            $response = $e->getResponse();
+            $reason = $response->getReasonPhrase();
+            $responseBody = $response->getBody()->__toString();
+            $responseData = json_decode($responseBody, true);
 
-                $messages = [];
-                $errors = $responseData['errors'];
-                foreach ($errors as $key => $value) {
-                    if (is_array($value)) {
-                        $messages[] = $key . ': ' . implode(', ', $value);
-                    } else {
-                        $messages[] = $value;
-                    }
+            $messages = [];
+            $errors = $responseData['errors'];
+            foreach ($errors as $key => $value) {
+                if (is_array($value)) {
+                    $messages[] = $key . ': ' . implode(', ', $value);
+                } else {
+                    $messages[] = $value;
                 }
-
-                if ($messages) {
-                    $errorMessage = implode(', ', $messages);
-                }
-
-                throw $this->errorResult(
-                    sprintf('Provider API error: %s', $errorMessage ?? $reason ?? null),
-                    [],
-                    ['response_data' => $responseData ?? null],
-                    $e
-                );
             }
+
+            if ($messages) {
+                $errorMessage = implode(', ', $messages);
+            }
+
+            $errorResultMessage = $errorMessage ?? null;
+
+            // If errorMessage was not set, and error result message is still null, set the reason.
+            if ($errorResultMessage === null) {
+                $errorResultMessage = $reason;
+            }
+
+            $this->errorResult(
+                sprintf('Provider API error: %s', $errorResultMessage),
+                [],
+                ['response_data' => $responseData ?? null],
+                $e
+            );
         }
 
         throw $e;

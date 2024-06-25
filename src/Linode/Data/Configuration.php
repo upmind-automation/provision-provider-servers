@@ -9,7 +9,6 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
 
 /**
  * @property-read string $access_token
- * @property-read bool|null $debug
  */
 class Configuration extends DataSet
 {
@@ -17,7 +16,6 @@ class Configuration extends DataSet
     {
         return new Rules([
             'access_token' => ['required', 'string'],
-            'debug' => ['boolean'],
         ]);
     }
 }

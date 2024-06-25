@@ -11,10 +11,9 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * OnApp API credentials.
  *
  * @property-read string $hostname Hostname
- * @property-read string username Username
+ * @property-read string $username Username
  * @property-read string $password Password
  * @property-read int|null $timeout API request timeout
- * @property-read bool $debug Whether or not to log API requests and responses
  */
 class Configuration extends DataSet
 {
@@ -25,7 +24,6 @@ class Configuration extends DataSet
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
             'timeout' => ['integer', 'min:1', 'max:180'],
-            'debug' => ['boolean'],
         ]);
     }
 }

@@ -12,24 +12,20 @@ use Throwable;
 
 class SocketClient
 {
-    /** @var resource */
+    /** @var resource|null */
     protected $client;
 
     protected string $host;
 
     protected int $port;
 
-    /** @var LoggerInterface */
+    /** @var LoggerInterface|null */
     protected $logger;
 
-    /** @var boolean $logging */
-    protected $logging;
-
-    public function __construct(string $host, int $port, bool $debug)
+    public function __construct(string $host, int $port)
     {
         $this->host = $host;
         $this->port = $port;
-        $this->logging = $debug;
     }
 
     /**
@@ -42,7 +38,7 @@ class SocketClient
 
     protected function writeLog(string $text, string $action)
     {
-        if ($this->logging && isset($this->logger)) {
+        if (isset($this->logger)) {
             $this->logger->debug(sprintf("Virtuozzo [%s]:\n %s", $action, $this->formatLog($text)));
         }
     }
@@ -74,6 +70,9 @@ class SocketClient
         return sprintf("tcp://%s:%s", $this->host, $this->port);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function connect(int $flags, int $timeout = 1800): void
     {
         if (
@@ -99,10 +98,7 @@ class SocketClient
     }
 
     /**
-     * @param int $length
-     *
-     * @return SimpleXMLElement
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function request(string $xml): SimpleXMLElement
     {
@@ -123,6 +119,9 @@ class SocketClient
         return $this->checkResponseErrors($resultXml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function checkResponseErrors(string $response): SimpleXMLElement
     {
         try {
@@ -169,6 +168,9 @@ class SocketClient
         return $result;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function checkAuth(string $response): void
     {
         try {
@@ -231,10 +233,7 @@ class SocketClient
     }
 
     /**
-     * @param string $content
-     *
-     * @return int
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function write(string $content): int
     {
@@ -248,8 +247,7 @@ class SocketClient
     }
 
     /**
-     * @return void
-     * @throws \ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function close(): void
     {

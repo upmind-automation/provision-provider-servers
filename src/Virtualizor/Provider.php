@@ -24,7 +24,7 @@ use Upmind\ProvisionProviders\Servers\Virtualizor\Data\Configuration;
 class Provider extends Category implements ProviderInterface
 {
     protected Configuration $configuration;
-    protected ApiClient $apiClient;
+    protected ApiClient|null $apiClient = null;
 
     public function __construct(Configuration $configuration)
     {
@@ -45,6 +45,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function create(CreateParams $params): ServerInfoResult
     {
@@ -125,6 +129,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getInfo(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -133,6 +141,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
@@ -147,6 +159,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
@@ -158,6 +174,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function resize(ResizeParams $params): ServerInfoResult
     {
@@ -172,7 +192,7 @@ class Provider extends Category implements ProviderInterface
         $info = $this->getServerInfoResult($params->instance_id);
 
         if ($info->state === 'On' && !$params->resize_running) {
-            throw $this->errorResult('Resize not available while server is running');
+            $this->errorResult('Resize not available while server is running');
         }
 
         $plan = $this->api()->getPlan($planId, $planName, $info->virtualization_type);
@@ -184,6 +204,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
@@ -209,6 +233,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reboot(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -222,6 +250,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function shutdown(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -240,6 +272,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function powerOn(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -257,6 +293,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function suspend(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -268,6 +308,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -279,22 +323,30 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
@@ -303,6 +355,11 @@ class Provider extends Category implements ProviderInterface
         return EmptyResult::create()->setMessage('Virtual server deleted');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
+     */
     protected function getServerInfoResult($serverId): ServerInfoResult
     {
         // $info = $this->api()->getVirtualServer($serverId); // this is kinda pointless compared to editvs
@@ -314,6 +371,10 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @param array $allInfo Data returned from Virtualizor\ApiClient::getAllVirtualServerInfo()
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function allInfoToServerInfoResult(array $allInfo): ServerInfoResult
     {
@@ -348,7 +409,7 @@ class Provider extends Category implements ProviderInterface
     {
         return $this->apiClient ??= new ApiClient(
             $this->configuration,
-            $this->getGuzzleHandlerStack(boolval($this->configuration->debug))
+            $this->getGuzzleHandlerStack()
         );
     }
 }

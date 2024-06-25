@@ -4,17 +4,9 @@ declare(strict_types=1);
 
 namespace Upmind\ProvisionProviders\Servers\Virtuozzo;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use SimpleXMLElement;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
-use Upmind\ProvisionProviders\DomainNames\Helper\Utils;
-use Upmind\ProvisionBase\Helper;
+use Upmind\ProvisionProviders\Servers\Helper\Utils;
 use Upmind\ProvisionProviders\Servers\Data\CreateParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Virtuozzo\Data\Configuration;
@@ -32,10 +24,13 @@ class ApiClient
     {
         $this->configuration = $configuration;
 
-        $this->client = new SocketClient($this->configuration->hostname, 4433, boolval($this->configuration->debug));
+        $this->client = new SocketClient($this->configuration->hostname, 4433);
         $this->client->setPsrLogger($logger);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     private function makeRequest($xml): SimpleXMLElement
     {
         $this->client->connect(STREAM_CLIENT_CONNECT, 50000);
@@ -46,7 +41,7 @@ class ApiClient
 
         $this->client->close();
 
-        if ($resultXml == []) {
+        if ($resultXml->count() === 0) {
             throw ProvisionFunctionError::create('Empty provider api response');
         }
 
@@ -54,18 +49,19 @@ class ApiClient
     }
 
     /**
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     private function login(): string
     {
         $username = base64_encode($this->configuration->username);
         $pass = base64_encode($this->configuration->password);
 
-        $login = new XMLCommand();
-
-        return $login->login($username, $pass);
+        return (new XMLCommand())->login($username, $pass);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function getServerInfo(string $serverId): ?array
     {
         $info = new XMLCommand();
@@ -77,22 +73,24 @@ class ApiClient
 
         $env = $response->data->{$type}->env;
 
-        $state = (string)$env->status->state ?? '0';
+        $state = (string) ($env->status->state ?? '0');
 
-        $diskSize = isset($env->virtual_config->device_list->device[0]->size) ? (int)$env->virtual_config->device_list->device[0]->size : 0;
+        $diskSize = isset($env->virtual_config->device_list->device[0]->size)
+            ? (int)$env->virtual_config->device_list->device[0]->size
+            : 0;
 
         return [
-            'instance_id' => (string)$env->eid ?? 'Unknown',
+            'instance_id' => (string) ($env->eid ?? 'Unknown'),
             'state' => $this->parseState($state),
             'label' => $env->virtual_config->name ? (string)($env->virtual_config->name) : 'Unknown',
             'hostname' => $env->virtual_config->hostname != '' ? (string)$env->virtual_config->hostname : 'Unknown',
             'ip_address' => $env->virtual_config->address->ip ? (string)$env->virtual_config->address->ip : null,
             'image' => $env->virtual_config->os->name != '' ? (string)$env->virtual_config->os->name : 'Unknown',
-            'memory_mb' => (int)$env->virtual_config->memory_size ?? 0,
-            'cpu_cores' => (int)$env->virtual_config->cpu_count ?? 0,
+            'memory_mb' => (int) ($env->virtual_config->memory_size ?? 0),
+            'cpu_cores' => (int) ($env->virtual_config->cpu_count ?? 0),
             'disk_mb' => $diskSize,
-            'location' => (string)$env->virtual_config->home_path ?? 'Unknown',
-            'virtualization_type' => (string)$type ?? 'Unknown',
+            'location' => (string) ($env->virtual_config->home_path ?? 'Unknown'),
+            'virtualization_type' => (string) ($type ?? 'Unknown'),
             'updated_at' => $env->virtual_config->last_modified_date
                 ? Utils::formatDate((string)$env->virtual_config->last_modified_date)
                 : null,
@@ -116,6 +114,9 @@ class ApiClient
         return $states[$state];
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function create(CreateParams $params): string
     {
         $create = new XMLCommand();
@@ -141,6 +142,9 @@ class ApiClient
         return (string)$response->data->vzpenvm->env->eid;
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function installGuestTools(string $serverId): void
     {
         $create = new XMLCommand();
@@ -148,6 +152,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function getConsoleInfo(string $serverId): array
     {
         $create = new XMLCommand();
@@ -157,6 +164,9 @@ class ApiClient
         return json_decode(json_encode($response->data->vzpenvm->console_info), true);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function changePassword(string $serverId, string $password): void
     {
         $create = new XMLCommand();
@@ -169,6 +179,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function resize(string $serverId, ResizeParams $params): void
     {
         $info = new XMLCommand();
@@ -199,6 +212,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function restart(string $serverId): void
     {
         $create = new XMLCommand();
@@ -208,6 +224,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function stop(string $serverId): void
     {
         $create = new XMLCommand();
@@ -217,6 +236,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function start(string $serverId): void
     {
         $create = new XMLCommand();
@@ -226,6 +248,9 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     public function destroy(string $serverId): void
     {
         $create = new XMLCommand();
@@ -235,7 +260,10 @@ class ApiClient
         $this->makeRequest($xml);
     }
 
-    public function rebuildServer(string $serverId, string $image)
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
+    public function rebuildServer(string $serverId, string $image): void
     {
         $platform = $this->getGuestOSPlatform($image);
 
@@ -251,7 +279,7 @@ class ApiClient
     }
 
     /**
-     * @return string
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function getGuestOSPlatform(string $image): string
     {

@@ -7,7 +7,7 @@ namespace Upmind\ProvisionProviders\Servers\SolusVM;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Promise\Promise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\Utils as PromiseUtils;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Arr;
@@ -40,6 +40,9 @@ class ApiClient
 
     /**
      * @return string Customer username
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function createCustomer(string $email, ?string $password = null): string
     {
@@ -54,7 +57,10 @@ class ApiClient
 
     /**
      * @param string|int|null $nodeGroupId
-     * @return string|int Server ID
+     * @return string Server ID
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function createServer(
         string $virtualizationType,
@@ -91,6 +97,9 @@ class ApiClient
 
     /**
      * @param string|int $serverId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function changeServerPlan($serverId, string $planName): void
     {
@@ -102,6 +111,9 @@ class ApiClient
 
     /**
      * @param string|int $serverId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function rebuildServer($serverId, string $templateId): void
     {
@@ -112,7 +124,8 @@ class ApiClient
     }
 
     /**
-     * @param string|int $serverId
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function changeRootPassword(string $serverId, string $password): void
     {
@@ -123,7 +136,8 @@ class ApiClient
     }
 
     /**
-     * @param string|int $serverId
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function bootServer(string $serverId): void
     {
@@ -131,7 +145,8 @@ class ApiClient
     }
 
     /**
-     * @param string|int $serverId
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function rebootServer(string $serverId): void
     {
@@ -139,7 +154,8 @@ class ApiClient
     }
 
     /**
-     * @param string|int $serverId
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function shutdownServer(string $serverId): void
     {
@@ -147,7 +163,8 @@ class ApiClient
     }
 
     /**
-     * @param string|int $serverId
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function terminateServer(string $serverId): void
     {
@@ -158,6 +175,9 @@ class ApiClient
      * Get information about a server.
      *
      * @param string|int $serverId
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getServerInfo($serverId): array
     {
@@ -173,6 +193,9 @@ class ApiClient
 
     /**
      * @param string|int $node Node id or name
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getNode($node): array
     {
@@ -185,6 +208,9 @@ class ApiClient
      * @param string|null $type Optionally, for a specific virtualization type
      *
      * @return array<string,string>
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function listTemplates(?string $type = null): array
     {
@@ -194,7 +220,7 @@ class ApiClient
             $types = Configuration::VIRTUALIZATION_TYPES;
         }
 
-        $promises = array_map(function (string $type): Promise {
+        $promises = array_map(function (string $type): PromiseInterface {
             return $this->apiPromise('listtemplates', ['type' => $type, 'listpipefriendly' => 1]);
         }, $types);
 
@@ -221,6 +247,9 @@ class ApiClient
 
     /**
      * Get a list of plan objects for the given virtualization type.
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function listPlans(string $type): array
     {
@@ -240,7 +269,10 @@ class ApiClient
     /**
      * Get a map of all node groups as id => name.
      *
-     * @return array<int,string>
+     * @return array<string,string>|array<int,string>
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function listNodeGroups(): array
     {
@@ -261,6 +293,9 @@ class ApiClient
      * @param int $hours Number of hours for session to last
      *
      * @return mixed[] Session data
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      *
      * @link https://docs.solusvm.com/v1/api/admin/virtual-server-functions/Serial%2BConsole.html
      */
@@ -293,6 +328,9 @@ class ApiClient
 
     /**
      * Make an API call to the SolusVM Admin API and return the response data.
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function apiCall(string $action, array $params = []): array
     {
@@ -303,9 +341,10 @@ class ApiClient
      * Make an asynchronous API call to the SolusVM Admin API, returning a promise
      * that will resolve to the response data.
      *
-     * @return Promise<mixed[]>
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
-    public function apiPromise(string $action, array $params = []): Promise
+    public function apiPromise(string $action, array $params = []): PromiseInterface
     {
         $params = array_merge($params, [
             'id' => $this->configuration->api_id,
@@ -323,12 +362,12 @@ class ApiClient
 
             return $responseData;
         })->otherwise(function (Throwable $e) {
-            throw $this->handleException($e);
+            $this->handleException($e);
         });
     }
 
     /**
-     * @throws ProvisionFunctionError
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     protected function assertApiResponseSuccess(Response $response, ?array $responseData = null): void
     {
@@ -363,7 +402,9 @@ class ApiClient
 
     /**
      * @return no-return
-     * @throws ProvisionFunctionError
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function handleException(Throwable $e): void
     {

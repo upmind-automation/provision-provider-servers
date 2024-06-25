@@ -26,7 +26,7 @@ use Upmind\ProvisionProviders\Servers\Virtuozzo\Data\Configuration;
 class Provider extends Category implements ProviderInterface
 {
     protected Configuration $configuration;
-    protected ApiClient $apiClient;
+    protected ApiClient|null $apiClient = null;
 
     public function __construct(Configuration $configuration)
     {
@@ -46,12 +46,15 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function create(CreateParams $params): ServerInfoResult
     {
         try {
             if (isset($params->size)) {
-                throw $this->errorResult('Size parameter not supported');
+                $this->errorResult('Size parameter not supported');
             }
 
             $serverId = $this->api()->create($params);
@@ -68,6 +71,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getInfo(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -78,13 +84,16 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
+    /**
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     */
     protected function getServerInfoResult($serverId): ServerInfoResult
     {
         try {
             $info = $this->api()->getServerInfo($serverId);
         } catch (ProvisionFunctionError $e) {
             if (Str::contains($e->getMessage(), 'Empty provider api response')) {
-                throw $this->errorResult('Server not found', ['instance_id' => $serverId], [], $e);
+                $this->errorResult('Server not found', ['instance_id' => $serverId], [], $e);
             }
 
             throw $e;
@@ -95,6 +104,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
@@ -113,6 +125,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function changeRootPassword(ChangeRootPasswordParams $params): ServerInfoResult
     {
@@ -133,18 +148,21 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function resize(ResizeParams $params): ServerInfoResult
     {
         try {
             if (isset($params->size)) {
-                throw $this->errorResult('Size parameter not supported');
+                $this->errorResult('Size parameter not supported');
             }
 
             $info = $this->getServerInfoResult($params->instance_id);
 
             if ($info->state === 'running' && !$params->resize_running) {
-                throw $this->errorResult('Resize not available while server is running');
+                $this->errorResult('Resize not available while server is running');
             }
 
             if ($info->state !== 'down') {
@@ -163,6 +181,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
@@ -181,6 +202,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function reboot(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -195,6 +219,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function shutdown(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -215,6 +242,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function powerOn(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -235,6 +265,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function suspend(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -244,6 +277,9 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function unsuspend(ServerIdentifierParams $params): ServerInfoResult
     {
@@ -253,22 +289,29 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function attachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      */
     public function detachRecoveryIso(ServerIdentifierParams $params): ServerInfoResult
     {
-        throw $this->errorResult('Operation not supported');
+        $this->errorResult('Operation not supported');
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     public function terminate(ServerIdentifierParams $params): EmptyResult
     {
@@ -290,8 +333,8 @@ class Provider extends Category implements ProviderInterface
 
     /**
      * @return no-return
-     * @throws ProvisionFunctionError
-     * @throws Throwable
+     * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
+     * @throws \Throwable
      */
     protected function handleException(Throwable $e): void
     {

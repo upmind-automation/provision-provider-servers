@@ -1,0 +1,23 @@
+version: '3.3'
+services:
+
+  #PHP Service
+  provision-provider-servers:
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile
+    container_name: provision-provider-servers
+    tty: true
+    environment:
+      SERVICE_NAME: provision-provider-servers
+      SERVICE_TAGS: dev
+    working_dir: /usr/src/lib
+    volumes:
+      - ./:/usr/src/lib
+    networks:
+      - provision-provider-servers-network
+
+#Docker Networks
+networks:
+  provision-provider-servers-network:
+    driver: bridge

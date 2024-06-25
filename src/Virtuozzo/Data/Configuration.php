@@ -11,9 +11,8 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
  * Virtuozzo API credentials.
  *
  * @property-read string $hostname Hostname
- * @property-read string username Username
+ * @property-read string $username Username
  * @property-read string $password Password
- * @property-read bool $debug Whether or not to log API requests and responses
  */
 class Configuration extends DataSet
 {
@@ -23,7 +22,6 @@ class Configuration extends DataSet
             'hostname' => ['required', 'domain_name'],
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
-            'debug' => ['boolean'],
         ]);
     }
 }
