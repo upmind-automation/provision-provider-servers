@@ -73,6 +73,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
  - [Harry Lewis](https://github.com/uphlewis)
  - [Codeline](https://github.com/CodelineNL)
+ - [Roussetos Karafyllakis](https://github.com/RoussKS)
  - [All Contributors](../../contributors)
 
 ## License
