@@ -2,10 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v4.1.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.1.1) - 2024-08-01
+
+- Update OnApp/ApiClient::getHypervisorLocation() fix 404 api error when hypervisor_group has no location set
+- Update Virtualizor::getConnection() throw error result if no IP address assigned
+
 ## [v4.1.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.1.0) - 2024-06-25
 
 - Update for PHP 8 and base lib v4
 - Update Linode SDK to v3.5.0
+
+## [v4.0.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.2) - 2024-08-01
+
+- Update OnApp/ApiClient::getHypervisorLocation() fix 404 api error when hypervisor_group has no location set
+- Update Virtualizor::getConnection() throw error result if no IP address assigned
 
 ## [v4.0.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.1) - 2024-05-16
 
