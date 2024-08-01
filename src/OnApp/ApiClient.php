@@ -417,6 +417,10 @@ class ApiClient
         $response = $this->makeRequest("/settings/hypervisor_zones/{$hypervisorGroupId}.json");
         $locationId = $response['hypervisor_group']['location_group_id'];
 
+        if (empty($locationId)) {
+            return null;
+        }
+
         $location = $this->getLocation((int)$locationId);
 
         return "{$location['country']} ({$location['city']})";
