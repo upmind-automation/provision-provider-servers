@@ -174,7 +174,19 @@ class Provider extends Category implements ProviderInterface
      */
     public function reinstall(ReinstallParams $params): ServerInfoResult
     {
-        $this->errorResult('Operation not supported');
+        try {
+            if (!is_numeric($params->image)) {
+                $this->errorResult('Image field must be integer.');
+            }
+
+            $info = $this->api()->getServerInfo($params->instance_id);
+
+            $this->api()->rebuildServer($params->instance_id, $info['hostname'] ?? null, (int)$params->image);
+
+            return $this->getServerInfoResult($params->instance_id)->setMessage('Server rebuilding with fresh image/template');
+        } catch (Throwable $e) {
+            $this->handleException($e);
+        }
     }
 
 
