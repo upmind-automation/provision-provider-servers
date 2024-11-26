@@ -168,7 +168,7 @@ class ApiClient
             'label' => $data['name'] ?? 'Unknown',
             'hostname' => $data['hostname'] ?? 'Unknown',
             'ip_address' => $data['vnc']['ip'],
-            'image' => ((int)$data['settings']['osTemplateInstallId'] != 0 ? $this->getImageName((int)$data['settings']['osTemplateInstallId']) : "Unknown"),
+            'image' => ((int)$data['settings']['osTemplateInstallId'] != 0 ? $this->getImageName($serverId, (int)$data['settings']['osTemplateInstallId']) : "Unknown"),
             'memory_mb' => (int)($data['settings']['resources']['memory'] ?? 0),
             'cpu_cores' => (int)($data['settings']['resources']['cpuCores'] ?? 0),
             'disk_mb' => (isset($data['settings']['resources']['storage']) ? ((int)$data['settings']['resources']['storage']) : 0) * 1024,
@@ -189,12 +189,12 @@ class ApiClient
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
-    public function getImageName(int $imageId): string
+    public function getImageName(string $serverId, int $imageId): string
     {
-        $response = $this->makeRequest("/1/templates");
+        $response = $this->makeRequest("/{$serverId}/templates");
         $data = $response['data'];
         foreach ($data as $group) {
-            foreach ($group as $template) {
+            foreach ($group['templates'] as $template) {
                 if ($template['id'] == $imageId) {
                     return $template['name'] . ' ' . $template['version'];
                 }
@@ -379,5 +379,20 @@ class ApiClient
             ->withData([
                 'response' => $response,
             ]);
+    }
+
+    public function rebuildServer(string $serverId, ?string $hostname, int $image): void
+    {
+        try {
+            $body = [
+                'name' => $hostname,
+                'hostname' => $hostname,
+                'operatingSystemId' =>$image,
+            ];
+
+            $this->makeRequest("/{$serverId}/build", null, $body, 'POST');
+        } catch (\Exception $e) {
+            throw ProvisionFunctionError::create('Server building failed');
+        }
     }
 }
