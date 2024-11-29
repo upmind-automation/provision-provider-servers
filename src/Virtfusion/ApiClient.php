@@ -160,10 +160,12 @@ class ApiClient
         $response = $this->makeRequest("/{$serverId}");
         $data = $response['data'];
 
+        $state = ucfirst((string)($data['remoteState']['state'] ?? $data['state'] ?? 'unknown'));
+
         return [
             'customer_identifier' => (int)$data['ownerId'],
             'instance_id' => (string)($data['id'] ?? 'Unknown'),
-            'state' => (string)($data['state'] ?? 'Unknown'),
+            'state' => $state,
             'suspended' => (bool)$data['suspended'],
             'label' => $data['name'] ?? 'Unknown',
             'hostname' => $data['hostname'] ?? 'Unknown',
