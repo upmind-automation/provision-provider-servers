@@ -62,11 +62,7 @@ class ApiClient
                 $requestParams['json'] = $body;
             }
 
-            if (str_contains($command, '/media/iso/') || $command == '/packages') {
-                $response = $this->client->request($method, '/api/v1' . $command, $requestParams);
-            } else {
-                $response = $this->client->request($method, '/api/v1/servers' . $command, $requestParams);
-            }
+            $response = $this->client->request($method, '/api/v1/' . ltrim($command, '/'), $requestParams);
             $result = $response->getBody()->getContents();
 
             $response->getBody()->close();
@@ -157,7 +153,7 @@ class ApiClient
      */
     public function getServerInfo(string $serverId): ?array
     {
-        $response = $this->makeRequest("/{$serverId}");
+        $response = $this->makeRequest("/servers/{$serverId}", ['remoteState' => 'true']);
         $data = $response['data'];
 
         $state = ucfirst((string)($data['remoteState']['state'] ?? $data['state'] ?? 'unknown'));
@@ -193,7 +189,7 @@ class ApiClient
      */
     public function getImageName(string $serverId, int $imageId): string
     {
-        $response = $this->makeRequest("/{$serverId}/templates");
+        $response = $this->makeRequest("/servers/{$serverId}/templates");
         $data = $response['data'];
         foreach ($data as $group) {
             foreach ($group['templates'] as $template) {
@@ -218,7 +214,7 @@ class ApiClient
             'action' => 'enable'
         ];
 
-        $response = $this->makeRequest("/{$serverId}/vnc", null, $body, 'POST');
+        $response = $this->makeRequest("/servers/{$serverId}/vnc", null, $body, 'POST');
         $vnc = $response['data']['vnc'];
 
         return [
@@ -251,7 +247,7 @@ class ApiClient
             'hypervisorId' => $this->configuration->hypervisorId,
         ];
 
-        $response = $this->makeRequest("", null, $body, 'POST');
+        $response = $this->makeRequest("/servers", null, $body, 'POST');
 
         if (!$id = $response['data']['id']) {
             throw ProvisionFunctionError::create('Server creation failed')
@@ -273,7 +269,7 @@ class ApiClient
                 'operatingSystemId' => $image,
             ];
 
-            $this->makeRequest("/{$id}/build", null, $body, 'POST');
+            $this->makeRequest("/servers/{$id}/build", null, $body, 'POST');
         } catch (\Exception $e) {
             throw ProvisionFunctionError::create('Server building failed')
                 ->withData([
@@ -296,7 +292,7 @@ class ApiClient
             'user' => 'root',
         ];
 
-        $this->makeRequest("/{$serverId}/resetPassword", null, $body, 'POST');
+        $this->makeRequest("/servers/{$serverId}/resetPassword", null, $body, 'POST');
     }
 
 
@@ -307,7 +303,7 @@ class ApiClient
      */
     public function suspend(string $serverId): void
     {
-        $this->makeRequest("/$serverId}/suspend", null, null, 'POST');
+        $this->makeRequest("/servers/$serverId}/suspend", null, null, 'POST');
     }
 
 
@@ -318,7 +314,7 @@ class ApiClient
      */
     public function unsuspend(string $serverId): void
     {
-        $this->makeRequest("/$serverId}/unsuspend", null, null, 'POST');
+        $this->makeRequest("/servers/$serverId}/unsuspend", null, null, 'POST');
     }
 
 
@@ -329,7 +325,7 @@ class ApiClient
      */
     public function power(string $serverId, string $action): void
     {
-        $this->makeRequest("/{$serverId}/power/{$action}", null, null, 'POST');
+        $this->makeRequest("/servers/{$serverId}/power/{$action}", null, null, 'POST');
     }
 
 
@@ -344,7 +340,7 @@ class ApiClient
             'delay' => 0,
         ];
 
-        $this->makeRequest("/{$serverId}", $params, null, 'DELETE');
+        $this->makeRequest("/servers/{$serverId}", $params, null, 'DELETE');
     }
 
 
@@ -359,7 +355,7 @@ class ApiClient
             $size = $this->getPackageId($size);
         }
 
-        $this->makeRequest("/{$serverId}/package/{$size}", null, null, 'PUT');
+        $this->makeRequest("/servers/{$serverId}/package/{$size}", null, null, 'PUT');
     }
 
     /**
@@ -392,7 +388,7 @@ class ApiClient
                 'operatingSystemId' =>$image,
             ];
 
-            $this->makeRequest("/{$serverId}/build", null, $body, 'POST');
+            $this->makeRequest("/servers/{$serverId}/build", null, $body, 'POST');
         } catch (\Exception $e) {
             throw ProvisionFunctionError::create('Server building failed');
         }
