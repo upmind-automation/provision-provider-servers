@@ -39,7 +39,7 @@ class Provider extends Category implements ProviderInterface
         return AboutData::create()
             ->setName('Virtfusion')
             ->setDescription('Deploy and manage Virtfusion virtual servers')
-            ->setLogoUrl('https://api.upmind.io/images/logos/provision/virtfusion-logo@2x.png');
+            ->setLogoUrl('https://api.upmind.io/images/logos/provision/virtfusion-logo.svg');
     }
 
     /**
