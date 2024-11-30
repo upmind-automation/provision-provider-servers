@@ -31,7 +31,6 @@ class Provider extends Category implements ProviderInterface
         $this->configuration = $configuration;
     }
 
-
     /**
      * @inheritDoc
      */
@@ -42,7 +41,6 @@ class Provider extends Category implements ProviderInterface
             ->setDescription('Deploy and manage Virtfusion virtual servers')
             ->setLogoUrl('https://api.upmind.io/images/logos/provision/virtfusion-logo@2x.png');
     }
-
 
     /**
      * @inheritDoc
@@ -66,7 +64,6 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
-
     /**
      * @inheritDoc
      *
@@ -83,7 +80,6 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
-
     /**
      * @param string|int $serverId
      *
@@ -95,7 +91,6 @@ class Provider extends Category implements ProviderInterface
     {
         return $this->api()->getServerInfo($serverId);
     }
-
 
     /**
      * @inheritDoc
@@ -135,7 +130,6 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
-
     /**
      * @inheritDoc
      *
@@ -153,7 +147,6 @@ class Provider extends Category implements ProviderInterface
             $this->handleException($e);
         }
     }
-
 
     /**
      * @inheritDoc
@@ -178,7 +171,6 @@ class Provider extends Category implements ProviderInterface
             $this->handleException($e);
         }
     }
-
 
     /**
      * @inheritDoc
@@ -208,7 +200,6 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
-
     /**
      * @inheritDoc
      *
@@ -232,7 +223,6 @@ class Provider extends Category implements ProviderInterface
             $this->handleException($e);
         }
     }
-
 
     /**
      * @inheritDoc
@@ -258,7 +248,6 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
-
     /**
      * @inheritDoc
      *
@@ -282,7 +271,6 @@ class Provider extends Category implements ProviderInterface
             $this->handleException($e);
         }
     }
-
 
     /**
      * @inheritDoc
@@ -308,7 +296,6 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
-
     /**
      * @inheritDoc
      *
@@ -333,7 +320,6 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
-
     /**
      * @inheritDoc
      *
@@ -344,7 +330,6 @@ class Provider extends Category implements ProviderInterface
         $this->errorResult('Operation not supported');
     }
 
-
     /**
      * @inheritDoc
      *
@@ -354,7 +339,6 @@ class Provider extends Category implements ProviderInterface
     {
         $this->errorResult('Operation not supported');
     }
-
 
     /**
      * @inheritDoc
@@ -376,7 +360,6 @@ class Provider extends Category implements ProviderInterface
         }
     }
 
-
     /**
      * @return ApiClient
      */
@@ -387,7 +370,6 @@ class Provider extends Category implements ProviderInterface
             $this->getGuzzleHandlerStack()
         );
     }
-
 
     /**
      * @return no-return
