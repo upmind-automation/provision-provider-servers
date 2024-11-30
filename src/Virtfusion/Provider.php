@@ -24,7 +24,7 @@ use Upmind\ProvisionProviders\Servers\Virtfusion\Data\Configuration;
 class Provider extends Category implements ProviderInterface
 {
     protected Configuration $configuration;
-    protected ApiClient|null $apiClient = null;
+    protected ?ApiClient $apiClient = null;
 
     public function __construct(Configuration $configuration)
     {
