@@ -18,6 +18,7 @@ use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerIdentifierParams;
 use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
 use Upmind\ProvisionProviders\Servers\Data\ConnectionResult;
+use Upmind\ProvisionProviders\Servers\Data\VncConnection;
 use Upmind\ProvisionProviders\Servers\Virtfusion\Data\Configuration;
 
 class Provider extends Category implements ProviderInterface
@@ -52,10 +53,6 @@ class Provider extends Category implements ProviderInterface
      */
     public function create(CreateParams $params): ServerInfoResult
     {
-        if (!Arr::has($params, 'customer_identifier')) {
-            $this->errorResult('customer_identifier field is required!');
-        }
-
         if (!Arr::has($params, 'size')) {
             $this->errorResult('size field is required!');
         }
@@ -88,15 +85,15 @@ class Provider extends Category implements ProviderInterface
 
 
     /**
+     * @param string|int $serverId
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
     protected function getServerInfoResult($serverId): ServerInfoResult
     {
-        $info = $this->api()->getServerInfo($serverId);
-
-        return ServerInfoResult::create($info);
+        return $this->api()->getServerInfo($serverId);
     }
 
 
@@ -110,13 +107,29 @@ class Provider extends Category implements ProviderInterface
     public function getConnection(ServerIdentifierParams $params): ConnectionResult
     {
         try {
+            $server = $this->api()->retrieveServer((int)$params->instance_id);
+
+            if (!$server['owner']['admin'] && !empty($server['owner']['extRelationId'])) {
+                // return sso login url
+                $auth = $this->api()->getAuthenticationTokens($server['owner']['extRelationId'], $server['id']);
+
+                return ConnectionResult::create()
+                    ->setMessage('Login URL generated')
+                    ->setType(ConnectionResult::TYPE_REDIRECT)
+                    ->setRedirectUrl(sprintf('https://%s/%s', $this->configuration->hostname, ltrim($auth['endpoint_complete'], '/')));
+            }
+
             $vnc = $this->api()->getVNC($params->instance_id);
 
             return ConnectionResult::create()
-                ->setMessage('SSH command generated')
-                ->setType(ConnectionResult::TYPE_SSH)
-                ->setCommand(sprintf('ssh root@%s:%s', $vnc['ip_address'], $vnc['port']))
-                ->setPassword($vnc['password']);
+                ->setMessage('VNC connection enabled')
+                ->setType(ConnectionResult::TYPE_VNC)
+                ->setVncConnection(
+                    VncConnection::create()
+                        ->setHost($vnc['hostname'] ?: $vnc['ip'])
+                        ->setPort($vnc['port'])
+                        ->setPassword($vnc['password'])
+                );
         } catch (Throwable $e) {
             $this->handleException($e);
         }
@@ -152,13 +165,15 @@ class Provider extends Category implements ProviderInterface
     public function resize(ResizeParams $params): ServerInfoResult
     {
         if (!Arr::has($params, 'size')) {
-            $this->errorResult('size field is required!');
+            $this->errorResult('Size field is required!');
         }
 
         try {
-            $this->api()->changePackage($params->instance_id, $params->size);
+            $response = $this->api()->changePackage($params->instance_id, $params->size);
 
-            return $this->getServerInfoResult($params->instance_id)->setMessage('Server is rebooting');
+            $info = $this->getServerInfoResult($params->instance_id)
+                ->setMessage('Server is resizing');
+            return $info->setData(array_merge($info->getData(), ['response_data' => $response]));
         } catch (Throwable $e) {
             $this->handleException($e);
         }
@@ -176,12 +191,16 @@ class Provider extends Category implements ProviderInterface
     {
         try {
             if (!is_numeric($params->image)) {
-                $this->errorResult('Image field must be integer.');
+                $image = $this->api()->getServerImage($params->instance_id, $params->image);
+                $imageId = $image['id'];
+            } else {
+                $imageId = (int)$params->image;
             }
 
             $info = $this->api()->getServerInfo($params->instance_id);
 
-            $this->api()->rebuildServer($params->instance_id, $info['hostname'] ?? null, (int)$params->image);
+            $sshKeyIds = $this->api()->getUserSshKeyIds((int)$info->customer_identifier);
+            $this->api()->buildServer((int)$params->instance_id, $info['hostname'] ?? null, $imageId, $sshKeyIds);
 
             return $this->getServerInfoResult($params->instance_id)->setMessage('Server rebuilding with fresh image/template');
         } catch (Throwable $e) {
@@ -278,12 +297,12 @@ class Provider extends Category implements ProviderInterface
             $info = $this->getServerInfoResult($params->instance_id);
 
             if ($info->suspended) {
-                $this->errorResult('Virtual server already off');
+                return $info->setMessage('Virtual server already suspended');
             }
 
             $this->api()->suspend($params->instance_id);
 
-            return $info->setMessage('Server is shutting down')->setState('Stopping');
+            return $info->setMessage('Server suspending')->setSuspended(true);
         } catch (Throwable $e) {
             $this->handleException($e);
         }
@@ -303,12 +322,12 @@ class Provider extends Category implements ProviderInterface
             $info = $this->getServerInfoResult($params->instance_id);
 
             if (!$info->suspended) {
-                return $info->setMessage('Virtual server already on');
+                return $info->setMessage('Virtual server already unsuspended');
             }
 
             $this->api()->unsuspend($params->instance_id);
 
-            return $info->setMessage('Server is booting')->setState('Stopping');
+            return $info->setMessage('Server un-suspending')->setSuspended(false);
         } catch (Throwable $e) {
             $this->handleException($e);
         }

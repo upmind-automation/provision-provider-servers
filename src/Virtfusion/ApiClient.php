@@ -15,6 +15,7 @@ use Throwable;
 use Upmind\ProvisionBase\Exception\ProvisionFunctionError;
 use Upmind\ProvisionProviders\Servers\Data\CreateParams;
 use Upmind\ProvisionProviders\Servers\Data\ResizeParams;
+use Upmind\ProvisionProviders\Servers\Data\ServerInfoResult;
 use Upmind\ProvisionProviders\Servers\Virtfusion\Data\Configuration;
 
 class ApiClient
@@ -124,20 +125,29 @@ class ApiClient
                 $errorData['http_code'] = $response->getStatusCode();
                 $responseBody = $response->getBody()->__toString();
                 $responseData = json_decode($responseBody, true);
+                $errorData['response_data'] = $responseData;
 
-                $errorMessage = $responseData['errors'][0] ?? null;
+                if (isset($responseData['errors'])) {
+                    $errors = collect((array)$responseData['errors'])->first();
+                    if (is_array($errors)) {
+                        $errorMessage = $errors[0] ?? null;
+                    }
+                    if (is_string($errors)) {
+                        $errorMessage = $errors;
+                    }
+                }
 
-                if (!$errorMessage) {
+                if (empty($errorMessage)) {
                     $errorMessage = $responseData['msg'] ?? null;
                 }
 
-                if (!$errorMessage) {
+                if (empty($errorMessage)) {
                     $errorMessage = $responseData['message'] ?? null;
                 }
             }
 
-            $errorMessage = sprintf('Provider API error: %s', $errorMessage ?? $reason ?? 'Unknown');
-            throw ProvisionFunctionError::create($errorMessage)
+            $errorMessage = sprintf('Provider API error: %s', ucfirst($errorMessage ?? $reason ?? 'Unknown'));
+            throw ProvisionFunctionError::create($errorMessage, $e)
                 ->withData($errorData);
         }
 
@@ -145,32 +155,50 @@ class ApiClient
             ->withData($errorData);
     }
 
+    public function retrieveServer(int $serverId, bool $withRemoteState = false): array
+    {
+        $response = $this->makeRequest("/servers/{$serverId}", ['remoteState' => $withRemoteState ? 'true' : 'false']);
+        return $response['data'];
+    }
 
     /**
+     * @param int|string $serverId
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
-    public function getServerInfo(string $serverId): ?array
+    public function getServerInfo($serverId): ServerInfoResult
     {
-        $response = $this->makeRequest("/servers/{$serverId}", ['remoteState' => 'true']);
-        $data = $response['data'];
+        $data = $this->retrieveServer((int)$serverId, true);
 
         $state = ucfirst((string)($data['remoteState']['state'] ?? $data['state'] ?? 'unknown'));
 
-        return [
+        $ipv4Interfaces = collect($data['network']['interfaces'])
+        ->sortByDesc('enabled')
+        ->first()['ipv4'] ?? [];
+        $ipAddress = collect($ipv4Interfaces)
+            ->sortByDesc('enabled')
+            ->first()['address'] ?? null;
+
+        $image = $this->getServerImage($serverId, $data['settings']['osTemplateInstallId'] ?? null, false);
+        if ($image) {
+            $imageName = sprintf('%s %s %s', $image['name'], $image['version'], $image['variant']);
+        }
+
+        return new ServerInfoResult([
             'customer_identifier' => (int)$data['ownerId'],
             'instance_id' => (string)($data['id'] ?? 'Unknown'),
             'state' => $state,
             'suspended' => (bool)$data['suspended'],
             'label' => $data['name'] ?? 'Unknown',
             'hostname' => $data['hostname'] ?? 'Unknown',
-            'ip_address' => $data['vnc']['ip'],
-            'image' => ((int)$data['settings']['osTemplateInstallId'] != 0 ? $this->getImageName($serverId, (int)$data['settings']['osTemplateInstallId']) : "Unknown"),
+            'ip_address' => $ipAddress,
+            'image' => $imageName ?? 'Unknown',
             'memory_mb' => (int)($data['settings']['resources']['memory'] ?? 0),
             'cpu_cores' => (int)($data['settings']['resources']['cpuCores'] ?? 0),
             'disk_mb' => (isset($data['settings']['resources']['storage']) ? ((int)$data['settings']['resources']['storage']) : 0) * 1024,
-            'location' => $data['hypervisor']['dataDir'] ?? 'Unknown',
+            'location' => $data['hypervisor']['name'] ?? 'Unknown',
             'virtualization_type' => $data['settings']['hyperv']['vendorIdValue'] ?? 'Unknown',
             'created_at' => isset($data['created'])
                 ? Carbon::parse((string)$data['created'])->format('Y-m-d H:i:s')
@@ -178,7 +206,35 @@ class ApiClient
             'updated_at' => isset($data['updated'])
                 ? Carbon::parse((string)$data['updated'])->format('Y-m-d H:i:s')
                 : null,
-        ];
+        ]);
+    }
+
+    /**
+     * @param string|int $image Image ID or name
+     */
+    public function getImage(int $packageId, $image): array
+    {
+        $response = $this->makeRequest("/media/templates/fromServerPackageSpec/{$packageId}");
+        foreach ($response['data'] as $group) {
+            foreach ($group['templates'] as $template) {
+                if ($template['id'] === (int)$image) {
+                    return $template;
+                }
+
+                if (sprintf('%s %s', $template['name'], $template['version']) === (string)$image) {
+                    return $template;
+                }
+
+                if (sprintf('%s %s %s', $template['name'], $template['version'], $template['variant']) === (string)$image) {
+                    return $template;
+                }
+            }
+        }
+
+        throw ProvisionFunctionError::create("Package image {$image} not found")
+            ->withData([
+                'package_id' => $packageId,
+            ]);
     }
 
 
@@ -187,19 +243,34 @@ class ApiClient
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
-    public function getImageName(string $serverId, int $imageId): string
+    public function getServerImage(string $serverId, $image, bool $orFail = true): ?array
     {
         $response = $this->makeRequest("/servers/{$serverId}/templates");
         $data = $response['data'];
         foreach ($data as $group) {
             foreach ($group['templates'] as $template) {
-                if ($template['id'] == $imageId) {
-                    return $template['name'] . ' ' . $template['version'];
+                if ($template['id'] === (int)$image) {
+                    return $template;
+                }
+
+                if (sprintf('%s %s', $template['name'], $template['version']) === (string)$image) {
+                    return $template;
+                }
+
+                if (sprintf('%s %s %s', $template['name'], $template['version'], $template['variant']) === (string)$image) {
+                    return $template;
                 }
             }
         }
 
-        return 'Unknown';
+        if ($orFail) {
+            throw ProvisionFunctionError::create("Server image {$image} not found")
+                ->withData([
+                    'server_id' => $serverId,
+                ]);
+        }
+
+        return null;
     }
 
 
@@ -215,13 +286,17 @@ class ApiClient
         ];
 
         $response = $this->makeRequest("/servers/{$serverId}/vnc", null, $body, 'POST');
-        $vnc = $response['data']['vnc'];
+        return $response['data']['vnc'];
+    }
 
-        return [
-            'ip_address' => $vnc['ip'],
-            'port' => $vnc['port'],
-            'password' => $vnc['password']
-        ];
+
+    /**
+     * @link https://docs.virtfusion.com/api/#api-Users-Generate_a_set_of_login_tokens_for_a_user_based_on_a_server_id_and_ext_relation_id
+     */
+    public function getAuthenticationTokens(int $extUserId, int $serverId): array
+    {
+        $response = $this->makeRequest("/users/{$extUserId}/serverAuthenticationTokens/{$serverId}", null, null, 'POST');
+        return $response['data']['authentication'];
     }
 
 
@@ -232,19 +307,27 @@ class ApiClient
      */
     public function create(CreateParams $params): string
     {
-        if (!is_numeric($params->size)) {
-            $size = $this->getPackageId($params->size);
-        } else {
-            $size = $params->size;
+        $userId = $params->customer_identifier;
+        if (!$userId) {
+            $userId = $this->createUser($params);
         }
 
+        if (!is_numeric($params->size)) {
+            $packageId = $this->getPackageId($params->size);
+        } else {
+            $packageId = (int)$params->size;
+        }
+
+        $image = $this->getImage($packageId, $params->image);
+
         $body = [
-            'userId' => $params->customer_identifier,
-            'packageId' => $size,
-            'cpuCores' => $params->cpu_cores,
-            'storage' => (int)round(($params->disk_mb) / 1024),
-            'memory' => $params->memory_mb,
-            'hypervisorId' => $this->configuration->hypervisorId,
+            'userId' => $userId,
+            'packageId' => $packageId,
+            'ipv4' => 1,
+            'hypervisorId' => $params->location, // This actually means hypervisor group id
+            // 'cpuCores' => $params->cpu_cores,
+            // 'storage' => (int)round(($params->disk_mb) / 1024),
+            // 'memory' => $params->memory_mb,
         ];
 
         $response = $this->makeRequest("/servers", null, $body, 'POST');
@@ -256,28 +339,35 @@ class ApiClient
                 ]);
         }
 
-        if ((int)$params->image == $params->image) {
-            $image = $params->image;
-        } else {
-            $image = null;
-        }
+        $sshKeyIds = $this->getUserSshKeyIds($userId);
 
         try {
-            $body = [
-                'name' => $params->label,
-                'hostname' => $params->label,
-                'operatingSystemId' => $image,
-            ];
-
-            $this->makeRequest("/servers/{$id}/build", null, $body, 'POST');
+            $this->buildServer($id, $params->label, $image['id'], $sshKeyIds);
         } catch (\Exception $e) {
-            throw ProvisionFunctionError::create('Server building failed')
+            throw ProvisionFunctionError::create('Server building failed', $e)
                 ->withData([
                     'result_data' => $response,
                 ]);
         }
 
         return (string)$id;
+    }
+
+    /**
+     * @link https://docs.virtfusion.com/api/#api-Users-Create
+     *
+     * @return int User ID
+     */
+    public function createUser(CreateParams $params): int
+    {
+        $response = $this->makeRequest('/users', null, [
+            'name' => $params->customer_name ?: $params->email,
+            'email' => $params->email,
+            'extRelationId' => $params->upmind_client_int_id, // we need this for SSO later on
+            'sendMail' => true,
+        ], 'POST');
+
+        return $response['data']['id'];
     }
 
 
@@ -290,6 +380,7 @@ class ApiClient
     {
         $body = [
             'user' => 'root',
+            'sendMail' => true,
         ];
 
         $this->makeRequest("/servers/{$serverId}/resetPassword", null, $body, 'POST');
@@ -349,21 +440,20 @@ class ApiClient
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
      * @throws \Throwable
      */
-    public function changePackage(string $serverId, string $size): void
+    public function changePackage(string $serverId, string $size): array
     {
         if (!is_numeric($size)) {
             $size = $this->getPackageId($size);
         }
 
-        $this->makeRequest("/servers/{$serverId}/package/{$size}", null, null, 'PUT');
+        return $this->makeRequest("/servers/{$serverId}/package/{$size}", null, null, 'PUT');
     }
 
     /**
-     * @param $packageName
-     * @return int|null
+     * @param string $packageName
      * @throws Throwable
      */
-    private function getPackageId($packageName): ?int
+    private function getPackageId($packageName): int
     {
         $response = $this->makeRequest("/packages");
         $data = $response['data'];
@@ -379,18 +469,27 @@ class ApiClient
             ]);
     }
 
-    public function rebuildServer(string $serverId, ?string $hostname, int $image): void
+    /**
+     * @return int[]
+     */
+    public function getUserSshKeyIds(int $userId): array
     {
-        try {
-            $body = [
-                'name' => $hostname,
-                'hostname' => $hostname,
-                'operatingSystemId' =>$image,
-            ];
+        $response = $this->makeRequest("ssh_keys/user/{$userId}");
+        return collect($response['data'])->where('enabled', true)->pluck('id')->toArray();
+    }
 
-            $this->makeRequest("/servers/{$serverId}/build", null, $body, 'POST');
-        } catch (\Exception $e) {
-            throw ProvisionFunctionError::create('Server building failed');
-        }
+    /**
+     * @param int[] $sshKeyIds
+     */
+    public function buildServer(int $serverId, ?string $hostname, int $image, array $sshKeyIds = []): void
+    {
+        $body = [
+            'name' => $hostname,
+            'hostname' => $hostname,
+            'operatingSystemId' => $image,
+            'sshKeys' => $sshKeyIds,
+        ];
+
+        $this->makeRequest("/servers/{$serverId}/build", null, $body, 'POST');
     }
 }
