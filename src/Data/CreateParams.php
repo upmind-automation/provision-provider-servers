@@ -9,6 +9,8 @@ use Upmind\ProvisionBase\Provider\DataSet\Rules;
 
 /**
  * @property-read string|int|null $customer_identifier Existing customer id
+ * @property-read int|null $upmind_client_int_id Numeric upmind client id
+ * @property-read string|null $customer_name Customer name
  * @property-read string $email Customer email address
  * @property-read string $label Server instance label/name
  * @property-read string $location Server dc/location/region
@@ -29,6 +31,8 @@ class CreateParams extends DataSet
     {
         return new Rules([
             'customer_identifier' => ['nullable'],
+            'upmind_client_int_id' => ['nullable', 'integer'],
+            'customer_name' => ['nullable', 'string'],
             'email' => ['required', 'email'],
             'label' => ['required', 'alpha_dash_dot'],
             'location' => ['required', 'string'],

@@ -24,7 +24,7 @@ class VncConnection extends DataSet
             'websocket_url' => ['url', 'starts_with:wss://', 'nullable'],
             'host' => ['required_without:websocket_url', 'string', 'nullable'],
             'port' => ['required_without:websocket_url', 'integer', 'nullable'],
-            'username' => ['required_without:websocket_url', 'string', 'nullable'],
+            'username' => ['string', 'nullable'],
             'password' => ['required_without:websocket_url', 'string', 'nullable'],
         ]);
     }
@@ -59,7 +59,7 @@ class VncConnection extends DataSet
     /**
      * @return self $this
      */
-    public function setUsername(string $username): self
+    public function setUsername(?string $username): self
     {
         $this->setValue('username', $username);
         return $this;
