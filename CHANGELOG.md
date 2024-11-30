@@ -2,6 +2,12 @@
 
 All notable changes to the package will be documented in this file.
 
+
+## [v4.2.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.2.0) - 2024-11-30
+
+- Add `customer_name` and `upmind_client_int_id` to CreateParams
+- Implement Virtualizor provider
+
 ## [v4.1.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.1.1) - 2024-08-01
 
 - Update OnApp/ApiClient::getHypervisorLocation() fix 404 api error when hypervisor_group has no location set
@@ -11,6 +17,12 @@ All notable changes to the package will be documented in this file.
 
 - Update for PHP 8 and base lib v4
 - Update Linode SDK to v3.5.0
+
+
+## [v4.0.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.3) - 2024-11-30
+
+- Add `customer_name` and `upmind_client_int_id` to CreateParams
+- Implement Virtualizor provider
 
 ## [v4.0.2](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.2) - 2024-08-01
 
