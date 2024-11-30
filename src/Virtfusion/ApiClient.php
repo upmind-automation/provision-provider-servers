@@ -50,8 +50,7 @@ class ApiClient
         ?array  $params = null,
         ?array  $body = null,
         ?string $method = 'GET'
-    ): ?array
-    {
+    ): ?array {
         try {
             $requestParams = [];
 
@@ -94,7 +93,6 @@ class ApiClient
 
         return $parsedResult;
     }
-
 
     /**
      * @return no-return
@@ -237,7 +235,6 @@ class ApiClient
             ]);
     }
 
-
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
@@ -273,7 +270,6 @@ class ApiClient
         return null;
     }
 
-
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
@@ -289,7 +285,6 @@ class ApiClient
         return $response['data']['vnc'];
     }
 
-
     /**
      * @link https://docs.virtfusion.com/api/#api-Users-Generate_a_set_of_login_tokens_for_a_user_based_on_a_server_id_and_ext_relation_id
      */
@@ -298,7 +293,6 @@ class ApiClient
         $response = $this->makeRequest("/users/{$extUserId}/serverAuthenticationTokens/{$serverId}", null, null, 'POST');
         return $response['data']['authentication'];
     }
-
 
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -370,7 +364,6 @@ class ApiClient
         return $response['data']['id'];
     }
 
-
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
@@ -386,7 +379,6 @@ class ApiClient
         $this->makeRequest("/servers/{$serverId}/resetPassword", null, $body, 'POST');
     }
 
-
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
@@ -396,7 +388,6 @@ class ApiClient
     {
         $this->makeRequest("/servers/$serverId}/suspend", null, null, 'POST');
     }
-
 
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -408,7 +399,6 @@ class ApiClient
         $this->makeRequest("/servers/$serverId}/unsuspend", null, null, 'POST');
     }
 
-
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Upmind\ProvisionBase\Exception\ProvisionFunctionError
@@ -418,7 +408,6 @@ class ApiClient
     {
         $this->makeRequest("/servers/{$serverId}/power/{$action}", null, null, 'POST');
     }
-
 
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -433,7 +422,6 @@ class ApiClient
 
         $this->makeRequest("/servers/{$serverId}", $params, null, 'DELETE');
     }
-
 
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
