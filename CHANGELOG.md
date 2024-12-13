@@ -2,6 +2,9 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v4.2.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.2.0) - 2024-12-13
+
+- Fix type error in Virtfusion ApiClient::create()
 
 ## [v4.2.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.2.0) - 2024-11-30
 
@@ -18,6 +21,9 @@ All notable changes to the package will be documented in this file.
 - Update for PHP 8 and base lib v4
 - Update Linode SDK to v3.5.0
 
+## [v4.0.4](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.4) - 2024-12-13
+
+- Fix type error in Virtfusion ApiClient::create()
 
 ## [v4.0.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.3) - 2024-11-30
 
