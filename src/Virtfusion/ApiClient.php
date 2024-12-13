@@ -301,7 +301,7 @@ class ApiClient
      */
     public function create(CreateParams $params): string
     {
-        $userId = $params->customer_identifier;
+        $userId = (int)$params->customer_identifier;
         if (!$userId) {
             $userId = $this->createUser($params);
         }
