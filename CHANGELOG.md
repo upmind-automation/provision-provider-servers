@@ -2,7 +2,7 @@
 
 All notable changes to the package will be documented in this file.
 
-## [v4.2.0](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.2.0) - 2024-12-13
+## [v4.2.1](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.2.1) - 2024-12-13
 
 - Fix type error in Virtfusion ApiClient::create()
 
