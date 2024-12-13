@@ -2,6 +2,10 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v4.0.4](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.4) - 2024-12-13
+
+- Fix type error in Virtfusion ApiClient::create()
+
 ## [v4.0.3](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.3) - 2024-11-30
 
 - Add `customer_name` and `upmind_client_int_id` to CreateParams
