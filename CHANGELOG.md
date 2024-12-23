@@ -2,6 +2,11 @@
 
 All notable changes to the package will be documented in this file.
 
+## [v4.0.5](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.5) - 2024-12-23
+
+- Fix Virtfusion/ApiClient::getServerInfo() for unbuilt servers with empty name/hostname
+- Fix Virtfusion/ApiClient::buildServer() to always pass a valid hostname
+
 ## [v4.0.4](https://github.com/upmind-automation/provision-provider-servers/releases/tag/v4.0.4) - 2024-12-13
 
 - Fix type error in Virtfusion ApiClient::create()
