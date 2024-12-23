@@ -174,7 +174,7 @@ class ApiClient
 
         $ipv4Interfaces = collect($data['network']['interfaces'])
         ->sortByDesc('enabled')
-        ->first()['ipv4'] ?? [];
+            ->first()['ipv4'] ?? [];
         $ipAddress = collect($ipv4Interfaces)
             ->sortByDesc('enabled')
             ->first()['address'] ?? null;
@@ -189,8 +189,8 @@ class ApiClient
             'instance_id' => (string)($data['id'] ?? 'Unknown'),
             'state' => $state,
             'suspended' => (bool)$data['suspended'],
-            'label' => $data['name'] ?? 'Unknown',
-            'hostname' => $data['hostname'] ?? 'Unknown',
+            'label' => $data['name'] ?: 'Unknown',
+            'hostname' => $data['hostname'] ?: 'Unknown',
             'ip_address' => $ipAddress,
             'image' => $imageName ?? 'Unknown',
             'memory_mb' => (int)($data['settings']['resources']['memory'] ?? 0),
