@@ -469,10 +469,15 @@ class ApiClient
     /**
      * @param int[] $sshKeyIds
      */
-    public function buildServer(int $serverId, ?string $hostname, int $image, array $sshKeyIds = []): void
+    public function buildServer(int $serverId, ?string $label, int $image, array $sshKeyIds = []): void
     {
+        $hostname = Str::slug($label, '.');
+        if (!Str::contains($hostname, '.')) {
+            $hostname .= '.host';
+        }
+
         $body = [
-            'name' => $hostname,
+            'name' => $label,
             'hostname' => $hostname,
             'operatingSystemId' => $image,
             'sshKeys' => $sshKeyIds,
